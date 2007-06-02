@@ -1,19 +1,20 @@
 #
 # TODO:
-# - pl
+# - pl desc
 #
 
 %define		_snap	20070602
 
-Summary:	soprano
-#Summary(pl.UTF-8):	soprano
+Summary:	Soprano - Qt wrapper API to librdf.
+Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf.
 Name:		soprano
 Version:	0.9.0
 Release:	0.%{_snap}.1
-License:	GPL
+License:	GPLv2
 Group:		X11/Applications
 Source0:	%{name}-%{_snap}.tar.bz2
 # Source0-md5:	8785c5166b4c36bba29eb943c558c51d
+URL:		http://sourceforge.net/projects/soprano
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	cmake
@@ -24,7 +25,10 @@ BuildRequires:	rpmbuild(macros) >= 1.129
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
-Soprano.
+Soprano (formally known as QRDF) is a library which provides a QT wrapper
+API to different RDF storage solutions. It features named graphs (contexts)
+and has a modular plug-in structure which allows to use different RDF
+storage implementations.
 
 #%description -l pl.UTF-8
 
