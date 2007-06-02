@@ -2,14 +2,17 @@
 # TODO:
 # - pl
 #
+
+%define		_snap	20070602
+
 Summary:	soprano
 #Summary(pl.UTF-8):	soprano
 Name:		soprano
-Version:	20070602
-Release:	1
+Version:	0.9.0
+Release:	0.%{_snap}.1
 License:	GPL
 Group:		X11/Applications
-Source0:	%{name}-%{version}.tar.bz2
+Source0:	%{name}-%{_snap}.tar.bz2
 # Source0-md5:	8785c5166b4c36bba29eb943c558c51d
 BuildRequires:	autoconf
 BuildRequires:	automake
