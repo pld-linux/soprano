@@ -51,11 +51,12 @@ install -d build
 cd build
 %cmake \
 	-DCMAKE_INSTALL_PREFIX=%{_prefix} \
+	-DCMAKE_VERBOSE_MAKEFILE=1 \
 	-DQT_QMAKE_EXECUTABLE=%{_bindir}/qt4-qmake \
 %if "%{_lib}" == "lib64"
 	-DLIB_SUFFIX=64 \
 %endif
-	../
+	..
 
 %{__make}
 
@@ -73,11 +74,13 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/*.so*
+%attr(755,root,root) %{_libdir}/libsoprano.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libsoprano.so.3
 %dir %{_libdir}/soprano
-%attr(755,root,root) %{_libdir}/soprano/*.so
+%attr(755,root,root) %{_libdir}/soprano/libsoprano_redlandbackend.so
 
 %files devel
 %defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libsoprano.so
 %dir %{_includedir}/soprano
 %{_includedir}/soprano/*.h
