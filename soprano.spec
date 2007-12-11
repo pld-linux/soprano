@@ -1,14 +1,14 @@
-%define		_snap	20070602
+%define		_snap	rc2
 
 Summary:	Soprano - Qt wrapper API to librdf
 Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
-Version:	0.9.0
+Version:	1.99
 Release:	0.%{_snap}.1
 License:	GPLv2
 Group:		X11/Applications
-Source0:	%{name}-%{_snap}.tar.bz2
-# Source0-md5:	8785c5166b4c36bba29eb943c558c51d
+Source0:	http://dl.sourceforge.net/soprano/%{name}-%{version}-%{_snap}.tar.bz2
+# Source0-md5:	78ae22f085e5e9eb06ee7cda23ecfa0f
 URL:		http://sourceforge.net/projects/soprano
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -44,7 +44,7 @@ Header files for soprano.
 Pliki nagłówkowe dla soprano.
 
 %prep
-%setup -q -n %{name}
+%setup -q -n %{name}-%{version}-%{_snap}
 
 %build
 install -d build
@@ -74,13 +74,40 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
+%attr(755,root,root) %{_bindir}/sopranocmd
+%attr(755,root,root) %{_bindir}/sopranod
 %attr(755,root,root) %{_libdir}/libsoprano.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libsoprano.so.3
+%attr(755,root,root) %ghost %{_libdir}/libsoprano.so.4
 %dir %{_libdir}/soprano
+%attr(755,root,root) %ghost %{_libdir}/libsopranoclient.so.1
+%attr(755,root,root) %{_libdir}/libsopranoclient.so.1.0.0
+
+%attr(755,root,root) %ghost %{_libdir}/libsopranoserver.so.1
+%attr(755,root,root) %{_libdir}/libsopranoserver.so.1.0.0
+
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_redlandbackend.so
+%attr(755,root,root) %{_libdir}/soprano/libsoprano_nquadparser.so
+%attr(755,root,root) %{_libdir}/soprano/libsoprano_nquadserializer.so
+%attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorparser.so
+%attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorserializer.so
+
+%{_pkgconfigdir}/soprano.pc
+
+%dir %{_datadir}/dbus-1/interfaces
+%{_datadir}/dbus-1/interfaces/org.soprano.Model.xml
+%{_datadir}/dbus-1/interfaces/org.soprano.NodeIterator.xml
+%{_datadir}/dbus-1/interfaces/org.soprano.QueryResultIterator.xml
+%{_datadir}/dbus-1/interfaces/org.soprano.Server.xml
+%{_datadir}/dbus-1/interfaces/org.soprano.StatementIterator.xml
+
+%{_datadir}/soprano
 
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libsoprano.so
+%attr(755,root,root) %{_libdir}/libsopranoserver.so
+%attr(755,root,root) %{_libdir}/libsopranoclient.so
+
 %dir %{_includedir}/soprano
 %{_includedir}/soprano/*.h
+%{_includedir}/Soprano
