@@ -1,10 +1,10 @@
 %define		_snap	rc2
-
+%define		rel		2
 Summary:	Soprano - Qt wrapper API to librdf
 Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
 Version:	1.99
-Release:	0.%{_snap}.1
+Release:	0.%{_snap}.%{rel}
 License:	GPLv2
 Group:		X11/Applications
 Source0:	http://dl.sourceforge.net/soprano/%{name}-%{version}-%{_snap}.tar.bz2
