@@ -10,6 +10,7 @@ Group:		X11/Applications
 Source0:	http://dl.sourceforge.net/soprano/%{name}-%{version}-%{_snap}.tar.bz2
 # Source0-md5:	78ae22f085e5e9eb06ee7cda23ecfa0f
 URL:		http://sourceforge.net/projects/soprano
+BuildRequires:	QtDBus-devel
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	cmake
