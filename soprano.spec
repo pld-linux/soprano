@@ -5,7 +5,7 @@ Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
 Version:	1.99
 Release:	0.%{_snap}.%{rel}
-License:	GPLv2
+License:	GPL v2
 Group:		X11/Applications
 Source0:	http://dl.sourceforge.net/soprano/%{name}-%{version}-%{_snap}.tar.bz2
 # Source0-md5:	78ae22f085e5e9eb06ee7cda23ecfa0f
@@ -14,8 +14,8 @@ BuildRequires:	QtDBus-devel
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	cmake
-BuildRequires:	qt4-build
-BuildRequires:	qt4-qmake
+BuildRequires:	qt4-build >= 4.3.3-3
+BuildRequires:	qt4-qmake >= 4.3.3-3
 BuildRequires:	redland-devel
 BuildRequires:	rpmbuild(macros) >= 1.129
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -53,7 +53,7 @@ cd build
 %cmake \
 	-DCMAKE_INSTALL_PREFIX=%{_prefix} \
 	-DCMAKE_VERBOSE_MAKEFILE=1 \
-	-DQT_QMAKE_EXECUTABLE=%{_bindir}/qt4-qmake \
+	-DQT_QMAKE_EXECUTABLE=%{_bindir}/qmake-qt4 \
 %if "%{_lib}" == "lib64"
 	-DLIB_SUFFIX=64 \
 %endif
@@ -79,21 +79,17 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sopranod
 %attr(755,root,root) %{_libdir}/libsoprano.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libsoprano.so.4
-%dir %{_libdir}/soprano
+%attr(755,root,root) %{_libdir}/libsopranoclient.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libsopranoclient.so.1
-%attr(755,root,root) %{_libdir}/libsopranoclient.so.1.0.0
-
+%attr(755,root,root) %{_libdir}/libsopranoserver.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libsopranoserver.so.1
-%attr(755,root,root) %{_libdir}/libsopranoserver.so.1.0.0
-
+%dir %{_libdir}/soprano
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_redlandbackend.so
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_nquadparser.so
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_nquadserializer.so
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorparser.so
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorserializer.so
-
-%{_pkgconfigdir}/soprano.pc
-
+%{_datadir}/soprano
 %dir %{_datadir}/dbus-1/interfaces
 %{_datadir}/dbus-1/interfaces/org.soprano.Model.xml
 %{_datadir}/dbus-1/interfaces/org.soprano.NodeIterator.xml
@@ -101,14 +97,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dbus-1/interfaces/org.soprano.Server.xml
 %{_datadir}/dbus-1/interfaces/org.soprano.StatementIterator.xml
 
-%{_datadir}/soprano
-
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libsoprano.so
 %attr(755,root,root) %{_libdir}/libsopranoserver.so
 %attr(755,root,root) %{_libdir}/libsopranoclient.so
-
 %dir %{_includedir}/soprano
 %{_includedir}/soprano/*.h
 %{_includedir}/Soprano
+%{_pkgconfigdir}/soprano.pc
