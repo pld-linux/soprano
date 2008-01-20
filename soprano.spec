@@ -1,3 +1,12 @@
+# TODO
+# - missing deps:
+#   * Sesame2 storage backend (java-based)
+#   * Raptor RDF serializer
+#   * The CLucene-based full-text search index library
+#
+# Conditional build:
+%bcond_without	serializer		# with raptor serializer. need to figure out proper BR
+#
 %define		_snap	rc2
 %define		rel		2
 Summary:	Soprano - Qt wrapper API to librdf
@@ -11,12 +20,17 @@ Source0:	http://dl.sourceforge.net/soprano/%{name}-%{version}-%{_snap}.tar.bz2
 # Source0-md5:	78ae22f085e5e9eb06ee7cda23ecfa0f
 URL:		http://sourceforge.net/projects/soprano
 BuildRequires:	QtDBus-devel
+BuildRequires:	QtNetwork-devel
+BuildRequires:	QtTest-devel
 BuildRequires:	autoconf
 BuildRequires:	automake
+BuildRequires:	clucene-core-devel
 BuildRequires:	cmake
+BuildRequires:	libraptor-devel
 BuildRequires:	qt4-build >= 4.3.3-3
 BuildRequires:	qt4-qmake >= 4.3.3-3
-BuildRequires:	redland-devel
+BuildRequires:	rasqal-devel
+BuildRequires:	redland-devel >= 1.0.6
 BuildRequires:	rpmbuild(macros) >= 1.293
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -88,7 +102,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_nquadparser.so
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_nquadserializer.so
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorparser.so
-%attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorserializer.so
+%{?with_serializer:%attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorserializer.so}
 %{_datadir}/soprano
 %dir %{_datadir}/dbus-1/interfaces
 %{_datadir}/dbus-1/interfaces/org.soprano.Model.xml
