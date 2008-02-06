@@ -22,10 +22,8 @@ BuildRequires:	QtNetwork-devel
 BuildRequires:	QtTest-devel
 BuildRequires:	autoconf
 BuildRequires:	automake
-BuildRequires:	clucene-core-devel
-BuildRequires:	clucene-core-static
+BuildRequires:	clucene-core-devel >= 0.9.16a-2
 BuildRequires:	cmake
-BuildRequires:	java-sun-sources
 BuildRequires:	libraptor-devel
 BuildRequires:	qt4-build >= 4.3.3-3
 BuildRequires:	qt4-qmake >= 4.3.3-3
