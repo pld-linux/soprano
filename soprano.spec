@@ -2,7 +2,6 @@
 # - missing deps:
 #   * Sesame2 storage backend (java-based)
 #   * Raptor RDF serializer
-#   * The CLucene-based full-text search index library
 #
 # Conditional build:
 %bcond_without	serializer		# with raptor serializer. need to figure out proper BR
@@ -11,7 +10,7 @@ Summary:	Soprano - Qt wrapper API to librdf
 Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
 Version:	2.0.0
-Release:	1
+Release:	2
 #Release:	0.%{_snap}.%{rel}
 License:	GPL v2
 Group:		X11/Applications
@@ -24,7 +23,9 @@ BuildRequires:	QtTest-devel
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	clucene-core-devel
+BuildRequires:	clucene-core-static
 BuildRequires:	cmake
+BuildRequires:	java-sun-sources
 BuildRequires:	libraptor-devel
 BuildRequires:	qt4-build >= 4.3.3-3
 BuildRequires:	qt4-qmake >= 4.3.3-3
@@ -96,6 +97,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %ghost %{_libdir}/libsopranoclient.so.1
 %attr(755,root,root) %{_libdir}/libsopranoserver.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libsopranoserver.so.1
+%attr(755,root,root) %{_libdir}/libsopranoindex.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libsopranoindex.so.1
 %dir %{_libdir}/soprano
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_redlandbackend.so
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_nquadparser.so
@@ -115,6 +118,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libsoprano.so
 %attr(755,root,root) %{_libdir}/libsopranoserver.so
 %attr(755,root,root) %{_libdir}/libsopranoclient.so
+%attr(755,root,root) %{_libdir}/libsopranoindex.so
 %dir %{_includedir}/soprano
 %{_includedir}/soprano/*.h
 %{_includedir}/Soprano
