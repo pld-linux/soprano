@@ -17,6 +17,7 @@ Group:		X11/Applications
 Source0:	http://dl.sourceforge.net/soprano/%{name}-%{version}.tar.bz2
 # Source0-md5:	3f33799c6ebd03048621057d268fb62f
 URL:		http://sourceforge.net/projects/soprano
+BuildRequires:	QtCore-devel
 BuildRequires:	QtDBus-devel
 BuildRequires:	QtNetwork-devel
 BuildRequires:	QtTest-devel
