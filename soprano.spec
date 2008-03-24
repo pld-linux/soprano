@@ -103,6 +103,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_nquadparser.so
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_nquadserializer.so
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorparser.so
+%attr(755,root,root) %{_libdir}/soprano/libsoprano_sesame2backend.so
 %{?with_serializer:%attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorserializer.so}
 %{_datadir}/soprano
 %dir %{_datadir}/dbus-1/interfaces
