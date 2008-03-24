@@ -16,6 +16,7 @@ License:	GPL v2
 Group:		X11/Applications
 Source0:	http://dl.sourceforge.net/soprano/%{name}-%{version}.tar.bz2
 # Source0-md5:	3f33799c6ebd03048621057d268fb62f
+Patch0:		%{name}-qt44.patch
 URL:		http://sourceforge.net/projects/soprano
 BuildRequires:	QtCore-devel
 BuildRequires:	QtDBus-devel
@@ -59,6 +60,7 @@ Pliki nagłówkowe dla soprano.
 
 %prep
 %setup -q
+%patch0 -p0
 
 %build
 install -d build
