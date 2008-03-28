@@ -9,14 +9,13 @@
 Summary:	Soprano - Qt wrapper API to librdf
 Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
-Version:	2.0.3
-Release:	1
-#Release:	0.%{_snap}.%{rel}
+Version:	2.0.97
+Release:	0.svn79103.1
 License:	GPL v2
 Group:		X11/Applications
-Source0:	http://dl.sourceforge.net/soprano/%{name}-%{version}.tar.bz2
-# Source0-md5:	3f33799c6ebd03048621057d268fb62f
-Patch0:		%{name}-qt44.patch
+#Source0:	http://dl.sourceforge.net/soprano/%{name}-%{version}.tar.bz2
+Source0:	%{name}-%{version}.tar.gz
+# Source0-md5:	decd129682d1cfaacc0033ba47ba7467
 URL:		http://sourceforge.net/projects/soprano
 BuildRequires:	QtCore-devel
 BuildRequires:	QtDBus-devel
@@ -60,7 +59,6 @@ Pliki nagłówkowe dla soprano.
 
 %prep
 %setup -q
-%patch0 -p0
 
 %build
 install -d build
@@ -92,6 +90,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/sopranocmd
 %attr(755,root,root) %{_bindir}/sopranod
+%attr(755,root,root) %{_bindir}/onto2vocabularyclass
 %attr(755,root,root) %{_libdir}/libsoprano.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libsoprano.so.4
 %attr(755,root,root) %{_libdir}/libsopranoclient.so.*.*.*
