@@ -5,6 +5,7 @@
 #
 # Conditional build:
 %bcond_without	serializer		# with raptor serializer. need to figure out proper BR
+%bcond_without	sesame2			# with sesame2backend
 
 %define		qtbrver		4.4.0
 
@@ -12,7 +13,7 @@ Summary:	Soprano - Qt wrapper API to librdf
 Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
 Version:	2.0.97
-Release:	0.svn79103.1
+Release:	0.svn79103.2
 License:	GPL v2
 Group:		X11/Applications
 #Source0:	http://dl.sourceforge.net/soprano/%{name}-%{version}.tar.bz2
@@ -27,7 +28,11 @@ BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	clucene-core-devel >= 0.9.16a-2
 BuildRequires:	cmake
-BuildRequires:	libraptor-devel
+%if %{with sesame2}
+BuildRequires:	java-sun >= 1.6
+BuildRequires:	java-sun-jre >= 1.6
+%endif
+%{?with_serializer:BuildRequires:	libraptor-devel}
 BuildRequires:	qt4-build >= %{qtbrver}
 BuildRequires:	qt4-qmake >= %{qtbrver}
 BuildRequires:	rasqal-devel
@@ -71,6 +76,11 @@ cd build
 	-DQT_QMAKE_EXECUTABLE=%{_bindir}/qmake-qt4 \
 %if "%{_lib}" == "lib64"
 	-DLIB_SUFFIX=64 \
+	-DJAVA_JVM_LIBRARY=/usr/lib64/jvm/java/jre/lib/amd64/server/libjvm.so \
+	-DJAVA_INCLUDE_PATH=/usr/lib64/jvm/java/include/ \
+%else
+	-DJAVA_JVM_LIBRARY=/usr/lib/jvm/java/jre/lib/i386/server/libjvm.so \
+	-DJAVA_INCLUDE_PATH=/usr/lib/jvm/java/include/ \
 %endif
 	..
 
@@ -106,7 +116,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_nquadparser.so
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_nquadserializer.so
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorparser.so
-%attr(755,root,root) %{_libdir}/soprano/libsoprano_sesame2backend.so
+%{?with_sesame2:%attr(755,root,root) %{_libdir}/soprano/libsoprano_sesame2backend.so}
 %{?with_serializer:%attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorserializer.so}
 %{_datadir}/soprano
 %dir %{_datadir}/dbus-1/interfaces
