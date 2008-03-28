@@ -6,6 +6,8 @@
 # Conditional build:
 %bcond_without	serializer		# with raptor serializer. need to figure out proper BR
 
+%define		qtbrver		4.4.0
+
 Summary:	Soprano - Qt wrapper API to librdf
 Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
@@ -17,17 +19,17 @@ Group:		X11/Applications
 Source0:	%{name}-%{version}.tar.gz
 # Source0-md5:	decd129682d1cfaacc0033ba47ba7467
 URL:		http://sourceforge.net/projects/soprano
-BuildRequires:	QtCore-devel
-BuildRequires:	QtDBus-devel
-BuildRequires:	QtNetwork-devel
-BuildRequires:	QtTest-devel
+BuildRequires:	QtCore-devel >= %{qtbrver}
+BuildRequires:	QtDBus-devel >= %{qtbrver}
+BuildRequires:	QtNetwork-devel >= %{qtbrver}
+BuildRequires:	QtTest-devel >= %{qtbrver}
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	clucene-core-devel >= 0.9.16a-2
 BuildRequires:	cmake
 BuildRequires:	libraptor-devel
-BuildRequires:	qt4-build >= 4.3.3-3
-BuildRequires:	qt4-qmake >= 4.3.3-3
+BuildRequires:	qt4-build >= %{qtbrver}
+BuildRequires:	qt4-qmake >= %{qtbrver}
 BuildRequires:	rasqal-devel
 BuildRequires:	redland-devel >= 1.0.6
 BuildRequires:	rpmbuild(macros) >= 1.293
