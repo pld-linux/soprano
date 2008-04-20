@@ -8,17 +8,18 @@
 %bcond_without	sesame2			# with sesame2backend
 
 %define		qtbrver		4.4.0
+%define		_rev	svn799072
 
 Summary:	Soprano - Qt wrapper API to librdf
 Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
-Version:	2.1.0
-Release:	0.svn798832.1
+Version:	2.0.98
+Release:	0.%{_rev}.1
 License:	GPL v2
 Group:		X11/Applications
 #Source0:	http://dl.sourceforge.net/soprano/%{name}-%{version}.tar.bz2
-Source0:	%{name}-%{version}.tar.gz
-# Source0-md5:	70f76468503027c57821cf72b8c060dc
+Source0:	%{name}-%{version}-%{_rev}.tar.gz
+# Source0-md5:	86113aba1c27d7106de427cb87bcd0c5
 URL:		http://sourceforge.net/projects/soprano
 BuildRequires:	QtCore-devel >= %{qtbrver}
 BuildRequires:	QtDBus-devel >= %{qtbrver}
@@ -65,7 +66,7 @@ Header files for soprano.
 Pliki nagłówkowe dla soprano.
 
 %prep
-%setup -q
+%setup -q -n %{name}-%{version}-%{_rev}
 
 %build
 install -d build
