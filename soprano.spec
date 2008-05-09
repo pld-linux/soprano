@@ -6,30 +6,18 @@
 # Conditional build:
 %bcond_without	serializer		# with raptor serializer. need to figure out proper BR
 %bcond_without	sesame2			# with sesame2backend
-%bcond_with	snap			# build svn snapshot
-
 
 %define		qtbrver		4.4.0
-%define		_snap		svn799072
-%define		_rel		1
-
 
 Summary:	Soprano - Qt wrapper API to librdf
 Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
 Version:	2.0.98
-Release:	%{?with_snap:0.%{_snap}.1}%{!?with_snap:%{_rel}}
+Release:	1
 License:	GPL v2
 Group:		X11/Applications
-
-%if %{with snap}
-Source100:	%{name}-%{version}-%{_snap}.tar.gz
-# Source100-md5:	86113aba1c27d7106de427cb87bcd0c5
-%else
 Source0:	http://dl.sourceforge.net/soprano/%{name}-%{version}.tar.bz2
 # Source0-md5:	fcaf461dded797445264d809df3257b5
-%endif
-
 URL:		http://sourceforge.net/projects/soprano
 BuildRequires:	QtCore-devel >= %{qtbrver}
 BuildRequires:	QtDBus-devel >= %{qtbrver}
@@ -76,7 +64,7 @@ Header files for soprano.
 Pliki nagłówkowe dla soprano.
 
 %prep
-%setup -q -T -b %{?with_snap:10}0 -n %{name}-%{version}%{?with_snap:-%{_snap}}
+%setup -q
 
 %build
 install -d build
