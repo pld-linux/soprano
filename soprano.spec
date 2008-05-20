@@ -13,7 +13,7 @@ Summary:	Soprano - Qt wrapper API to librdf
 Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
 Version:	2.0.98
-Release:	1
+Release:	2
 License:	GPL v2
 Group:		X11/Applications
 Source0:	http://dl.sourceforge.net/soprano/%{name}-%{version}.tar.bz2
@@ -28,8 +28,7 @@ BuildRequires:	automake
 BuildRequires:	clucene-core-devel >= 0.9.16a-2
 BuildRequires:	cmake
 %if %{with sesame2}
-BuildRequires:	java-sun >= 1.6
-BuildRequires:	java-sun-jre >= 1.6
+BuildRequires:	libgcj-devel
 %endif
 %{?with_serializer:BuildRequires:	libraptor-devel}
 BuildRequires:	qt4-build >= %{qtbrver}
@@ -65,6 +64,10 @@ Pliki nagłówkowe dla soprano.
 
 %prep
 %setup -q
+# Sesame2 backend doesn't really use the new JNI-1.6 feature -> GetObjectRefType.
+sed -i 's:JNI_VERSION_1_6:JNI_VERSION_1_4:g' CMakeLists.txt
+# cleanup.
+sed -i 's:${JAVA_INCLUDE_PATH2}::' backends/sesame2/CMakeLists.txt
 
 %build
 install -d build
@@ -75,12 +78,9 @@ cd build
 	-DQT_QMAKE_EXECUTABLE=%{_bindir}/qmake-qt4 \
 %if "%{_lib}" == "lib64"
 	-DLIB_SUFFIX=64 \
-	-DJAVA_JVM_LIBRARY=/usr/lib64/jvm/java/jre/lib/amd64/server/libjvm.so \
-	-DJAVA_INCLUDE_PATH=/usr/lib64/jvm/java/include/ \
-%else
-	-DJAVA_JVM_LIBRARY=/usr/lib/jvm/java/jre/lib/i386/server/libjvm.so \
-	-DJAVA_INCLUDE_PATH=/usr/lib/jvm/java/include/ \
 %endif
+	-DJAVA_INCLUDE_PATH=%{_libdir}/gcc/%{_target_platform}/%(%{__cc} -dumpversion)/include \
+	-DJAVA_JVM_LIBRARY=%{_libdir}/gcj-%(%{__cc} -dumpversion)/libjvm.so \
 	..
 
 %{__make}
