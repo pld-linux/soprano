@@ -23,8 +23,6 @@ BuildRequires:	QtCore-devel >= %{qtbrver}
 BuildRequires:	QtDBus-devel >= %{qtbrver}
 BuildRequires:	QtNetwork-devel >= %{qtbrver}
 BuildRequires:	QtTest-devel >= %{qtbrver}
-BuildRequires:	autoconf
-BuildRequires:	automake
 BuildRequires:	clucene-core-devel >= 0.9.16a-2
 BuildRequires:	cmake
 %if %{with sesame2}
