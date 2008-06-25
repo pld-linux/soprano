@@ -70,9 +70,10 @@ sed -i 's:${JAVA_INCLUDE_PATH2}::' backends/sesame2/CMakeLists.txt
 %build
 install -d build
 cd build
+# add this to get verbose output
+#-DCMAKE_VERBOSE_MAKEFILE=1 \
 %cmake \
 	-DCMAKE_INSTALL_PREFIX=%{_prefix} \
-	-DCMAKE_VERBOSE_MAKEFILE=1 \
 	-DQT_QMAKE_EXECUTABLE=%{_bindir}/qmake-qt4 \
 %if "%{_lib}" == "lib64"
 	-DLIB_SUFFIX=64 \
