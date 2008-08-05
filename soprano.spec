@@ -79,7 +79,7 @@ cd build
 	-DLIB_SUFFIX=64 \
 %endif
 	-DJAVA_INCLUDE_PATH=%{_libdir}/gcc/%{_target_platform}/%(%{__cc} -dumpversion)/include \
-	-DJAVA_JVM_LIBRARY=%{_libdir}/gcj-%(%{__cc} -dumpversion)-9/libjvm.so \
+	-DJAVA_JVM_LIBRARY=%{_libdir}/gcj-%(%{__cc} -dumpversion)/libjvm.so \
 	..
 
 %{__make}
