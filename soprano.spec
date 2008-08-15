@@ -117,7 +117,6 @@ rm -rf $RPM_BUILD_ROOT
 %{?with_sesame2:%attr(755,root,root) %{_libdir}/soprano/libsoprano_sesame2backend.so}
 %{?with_serializer:%attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorserializer.so}
 %{_datadir}/soprano
-%dir %{_datadir}/dbus-1/interfaces
 %{_datadir}/dbus-1/interfaces/org.soprano.Model.xml
 %{_datadir}/dbus-1/interfaces/org.soprano.NodeIterator.xml
 %{_datadir}/dbus-1/interfaces/org.soprano.QueryResultIterator.xml
