@@ -7,24 +7,24 @@
 %bcond_without	serializer		# with raptor serializer. need to figure out proper BR
 %bcond_without	sesame2			# with sesame2backend
 
-%define		qtbrver		4.4.0
+%define		qtbrver		4.4.3
 
 Summary:	Soprano - Qt wrapper API to librdf
 Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
-Version:	2.1
-Release:	2
+Version:	2.1.64
+Release:	1
 License:	GPL v2
 Group:		X11/Applications
 Source0:	http://dl.sourceforge.net/soprano/%{name}-%{version}.tar.bz2
-# Source0-md5:	c89c04931db14eb7f5801eb3d4e5c742
+# Source0-md5:	f62267c1f904450ab0e9d8cab30d252b
 URL:		http://sourceforge.net/projects/soprano
 BuildRequires:	QtCore-devel >= %{qtbrver}
 BuildRequires:	QtDBus-devel >= %{qtbrver}
 BuildRequires:	QtNetwork-devel >= %{qtbrver}
 BuildRequires:	QtTest-devel >= %{qtbrver}
 BuildRequires:	clucene-core-devel >= 0.9.16a-2
-BuildRequires:	cmake >= 2.6.0
+BuildRequires:	cmake >= 2.6.2
 %{?with_sesame2:BuildRequires:	libgcj-devel}
 %{?with_serializer:BuildRequires:	libraptor-devel}
 BuildRequires:	qt4-build >= %{qtbrver}
@@ -61,9 +61,9 @@ Pliki nagłówkowe dla soprano.
 %prep
 %setup -q
 # Sesame2 backend doesn't really use the new JNI-1.6 feature -> GetObjectRefType.
-sed -i 's:JNI_VERSION_1_6:JNI_VERSION_1_4:g' CMakeLists.txt
+#sed -i 's:JNI_VERSION_1_6:JNI_VERSION_1_4:g' CMakeLists.txt
 # cleanup.
-sed -i 's:${JAVA_INCLUDE_PATH2}::' backends/sesame2/CMakeLists.txt
+#sed -i 's:${JAVA_INCLUDE_PATH2}::' backends/sesame2/CMakeLists.txt
 
 %build
 install -d build
@@ -77,8 +77,9 @@ cd build
 	-DLIB_SUFFIX=64 \
 %endif
 	-DJAVA_INCLUDE_PATH=%{_libdir}/gcc/%{_target_platform}/%{cc_version}/include \
-	-DJAVA_JVM_LIBRARY=%{_libdir}/gcj-%{cc_version}/libjvm.so \
-	..
+	-DJAVA_INCLUDE_PATH2=%{_libdir}/gcc/%{_target_platform}/%{cc_version}/include \
+	-DJAVA_JVM_LIBRARY=%{_libdir}/gcj-%{cc_version}-9/libjvm.so \
+	../
 
 %{__make}
 
