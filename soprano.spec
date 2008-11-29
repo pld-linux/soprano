@@ -32,6 +32,7 @@ BuildRequires:	qt4-qmake >= %{qtbrver}
 BuildRequires:	rasqal-devel
 BuildRequires:	redland-devel >= 1.0.6
 BuildRequires:	rpmbuild(macros) >= 1.453
+BuildConflicts:	java-sun
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -114,8 +115,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_nquadparser.so
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_nquadserializer.so
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorparser.so
-%attr(755,root,root) %{?with_sesame2:%attr(755,root,root) %{_libdir}/soprano/libsoprano_sesame2backend.so}
-%attr(755,root,root) %{?with_serializer:%attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorserializer.so}
+%{?with_sesame2:%attr(755,root,root) %{_libdir}/soprano/libsoprano_sesame2backend.so}
+%{?with_serializer:%attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorserializer.so}
 %{_datadir}/soprano
 %{_datadir}/dbus-1/interfaces/org.soprano.Model.xml
 %{_datadir}/dbus-1/interfaces/org.soprano.NodeIterator.xml
