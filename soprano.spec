@@ -32,6 +32,7 @@ BuildRequires:	qt4-qmake >= %{qtbrver}
 BuildRequires:	rasqal-devel
 BuildRequires:	redland-devel >= 1.0.6
 BuildRequires:	rpmbuild(macros) >= 1.453
+BuildConflicts:	java-sun
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
