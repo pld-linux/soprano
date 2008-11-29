@@ -7,33 +7,31 @@
 %bcond_without	serializer		# with raptor serializer. need to figure out proper BR
 %bcond_without	sesame2			# with sesame2backend
 
-%define		qtbrver		4.4.0
+%define		qtbrver		4.4.3
 
 Summary:	Soprano - Qt wrapper API to librdf
 Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
-Version:	2.1.1
+Version:	2.1.64
 Release:	1
 License:	GPL v2
 Group:		X11/Applications
 Source0:	http://dl.sourceforge.net/soprano/%{name}-%{version}.tar.bz2
-# Source0-md5:	dc590aa42d832cea5ed13145d359c9f2
+# Source0-md5:	f62267c1f904450ab0e9d8cab30d252b
 URL:		http://sourceforge.net/projects/soprano
 BuildRequires:	QtCore-devel >= %{qtbrver}
 BuildRequires:	QtDBus-devel >= %{qtbrver}
 BuildRequires:	QtNetwork-devel >= %{qtbrver}
 BuildRequires:	QtTest-devel >= %{qtbrver}
 BuildRequires:	clucene-core-devel >= 0.9.16a-2
-BuildRequires:	cmake
-%if %{with sesame2}
-BuildRequires:	libgcj-devel
-%endif
+BuildRequires:	cmake >= 2.6.2
+%{?with_sesame2:BuildRequires: libgcj-devel}
 %{?with_serializer:BuildRequires:	libraptor-devel}
 BuildRequires:	qt4-build >= %{qtbrver}
 BuildRequires:	qt4-qmake >= %{qtbrver}
 BuildRequires:	rasqal-devel
 BuildRequires:	redland-devel >= 1.0.6
-BuildRequires:	rpmbuild(macros) >= 1.293
+BuildRequires:	rpmbuild(macros) >= 1.453
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -43,10 +41,11 @@ graphs (contexts) and has a modular plug-in structure which allows to
 use different RDF storage implementations.
 
 %description -l pl.UTF-8
-Soprano (wcześniej znane jako QRDF) to biblioteka udostępniająca API
-wrappera Qt do różnych rozwiązań przechowywania danych RDF. Obsługuje
-nazwane grafy (konteksty) i ma strukturę modularnych wtyczek, co
-pozwala na używanie różnych implementacji przechowywania danych RDF.
+Soprano (wcześniej znane jako QRDF) to biblioteka udostępniająca
+API wrappera Qt do różnych rozwiązań przechowywania danych RDF.
+Obsługuje nazwane grafy (konteksty) i ma strukturę modularnych
+wtyczek, co pozwala na używanie różnych implementacji
+przechowywania danych RDF.
 
 %package devel
 Summary:	Header files for soprano
@@ -63,23 +62,25 @@ Pliki nagłówkowe dla soprano.
 %prep
 %setup -q
 # Sesame2 backend doesn't really use the new JNI-1.6 feature -> GetObjectRefType.
-sed -i 's:JNI_VERSION_1_6:JNI_VERSION_1_4:g' CMakeLists.txt
+#sed -i 's:JNI_VERSION_1_6:JNI_VERSION_1_4:g' CMakeLists.txt
 # cleanup.
-sed -i 's:${JAVA_INCLUDE_PATH2}::' backends/sesame2/CMakeLists.txt
+#sed -i 's:${JAVA_INCLUDE_PATH2}::' backends/sesame2/CMakeLists.txt
 
 %build
 install -d build
 cd build
+# add this to get verbose output
+# -DCMAKE_VERBOSE_MAKEFILE=1
 %cmake \
 	-DCMAKE_INSTALL_PREFIX=%{_prefix} \
-	-DCMAKE_VERBOSE_MAKEFILE=ON \
 	-DQT_QMAKE_EXECUTABLE=%{_bindir}/qmake-qt4 \
 %if "%{_lib}" == "lib64"
 	-DLIB_SUFFIX=64 \
 %endif
-	-DJAVA_INCLUDE_PATH=%{_libdir}/gcc/%{_target_platform}/%(%{__cc} -dumpversion)/include \
-	-DJAVA_JVM_LIBRARY=%{_libdir}/gcj-%(%{__cc} -dumpversion)-9/libjvm.so \
-	..
+	-DJAVA_INCLUDE_PATH=%{_libdir}/gcc/%{_target_platform}/%{cc_version}/include \
+	-DJAVA_INCLUDE_PATH2=%{_libdir}/gcc/%{_target_platform}/%{cc_version}/include \
+	-DJAVA_JVM_LIBRARY=%{_libdir}/gcj-%{cc_version}-9/libjvm.so \
+	../
 
 %{__make}
 
@@ -113,8 +114,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_nquadparser.so
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_nquadserializer.so
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorparser.so
-%{?with_sesame2:%attr(755,root,root) %{_libdir}/soprano/libsoprano_sesame2backend.so}
-%{?with_serializer:%attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorserializer.so}
+%attr(755,root,root) %{?with_sesame2:%attr(755,root,root) %{_libdir}/soprano/libsoprano_sesame2backend.so}
+%attr(755,root,root) %{?with_serializer:%attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorserializer.so}
 %{_datadir}/soprano
 %{_datadir}/dbus-1/interfaces/org.soprano.Model.xml
 %{_datadir}/dbus-1/interfaces/org.soprano.NodeIterator.xml
