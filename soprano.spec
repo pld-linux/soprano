@@ -7,17 +7,18 @@
 %bcond_without	serializer		# with raptor serializer. need to figure out proper BR
 %bcond_without	sesame2			# with sesame2backend
 
-%define		qtbrver		4.4.3
+%define		qtbrver		4.5.1
+%define		svn		979183
 
 Summary:	Soprano - Qt wrapper API to librdf
 Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
-Version:	2.2.3
-Release:	2
+Version:	2.3
+Release:	0.%{svn}.1
 License:	GPL v2
 Group:		X11/Applications
-Source0:	http://dl.sourceforge.net/soprano/%{name}-%{version}.tar.bz2
-# Source0-md5:	22c992a252144ae0a3a964ba2f6f1933
+Source0:	%{name}-%{version}-svn-%{svn}.tar.bz2
+# Source0-md5:	ed7197ae896c12d9dbb7e38bdd8d59d2
 URL:		http://sourceforge.net/projects/soprano
 BuildRequires:	QtCore-devel >= %{qtbrver}
 BuildRequires:	QtDBus-devel >= %{qtbrver}
@@ -61,7 +62,7 @@ Header files for soprano.
 Pliki nagłówkowe dla soprano.
 
 %prep
-%setup -q
+%setup -q -n %{name}-%{version}-svn-%{svn}
 # Sesame2 backend doesn't really use the new JNI-1.6 feature -> GetObjectRefType.
 #sed -i 's:JNI_VERSION_1_6:JNI_VERSION_1_4:g' CMakeLists.txt
 # cleanup.
