@@ -12,12 +12,12 @@
 Summary:	Soprano - Qt wrapper API to librdf
 Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
-Version:	2.1.64
-Release:	2
+Version:	2.2.3
+Release:	3
 License:	GPL v2
 Group:		X11/Applications
 Source0:	http://dl.sourceforge.net/soprano/%{name}-%{version}.tar.bz2
-# Source0-md5:	f62267c1f904450ab0e9d8cab30d252b
+# Source0-md5:	22c992a252144ae0a3a964ba2f6f1933
 URL:		http://sourceforge.net/projects/soprano
 BuildRequires:	QtCore-devel >= %{qtbrver}
 BuildRequires:	QtDBus-devel >= %{qtbrver}
@@ -25,7 +25,7 @@ BuildRequires:	QtNetwork-devel >= %{qtbrver}
 BuildRequires:	QtTest-devel >= %{qtbrver}
 BuildRequires:	clucene-core-devel >= 0.9.16a-2
 BuildRequires:	cmake >= 2.6.2
-%{?with_sesame2:BuildRequires:	libgcj-devel}
+%{?with_sesame2:BuildRequires: libgcj-devel}
 %{?with_serializer:BuildRequires:	libraptor-devel}
 BuildRequires:	qt4-build >= %{qtbrver}
 BuildRequires:	qt4-qmake >= %{qtbrver}
@@ -42,10 +42,11 @@ graphs (contexts) and has a modular plug-in structure which allows to
 use different RDF storage implementations.
 
 %description -l pl.UTF-8
-Soprano (wcześniej znane jako QRDF) to biblioteka udostępniająca API
-wrappera Qt do różnych rozwiązań przechowywania danych RDF. Obsługuje
-nazwane grafy (konteksty) i ma strukturę modularnych wtyczek, co
-pozwala na używanie różnych implementacji przechowywania danych RDF.
+Soprano (wcześniej znane jako QRDF) to biblioteka udostępniająca
+API wrappera Qt do różnych rozwiązań przechowywania danych RDF.
+Obsługuje nazwane grafy (konteksty) i ma strukturę modularnych
+wtyczek, co pozwala na używanie różnych implementacji
+przechowywania danych RDF.
 
 %package devel
 Summary:	Header files for soprano
@@ -70,7 +71,7 @@ Pliki nagłówkowe dla soprano.
 install -d build
 cd build
 # add this to get verbose output
-#-DCMAKE_VERBOSE_MAKEFILE=1 \
+# -DCMAKE_VERBOSE_MAKEFILE=1
 %cmake \
 	-DCMAKE_INSTALL_PREFIX=%{_prefix} \
 	-DQT_QMAKE_EXECUTABLE=%{_bindir}/qmake-qt4 \
