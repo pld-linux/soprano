@@ -7,17 +7,18 @@
 %bcond_without	serializer		# with raptor serializer. need to figure out proper BR
 %bcond_without	sesame2			# with sesame2backend
 
-%define		qtbrver		4.4.3
+%define		qtbrver		4.5.1
+%define		svn		979183
 
 Summary:	Soprano - Qt wrapper API to librdf
 Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
-Version:	2.2.3
-Release:	2
+Version:	2.3.0
+Release:	1
 License:	GPL v2
 Group:		X11/Applications
-Source0:	http://dl.sourceforge.net/soprano/%{name}-%{version}.tar.bz2
-# Source0-md5:	22c992a252144ae0a3a964ba2f6f1933
+Source0:	http://downloads.sourceforge.net/sourceforge/soprano/%{name}-%{version}.tar.bz2
+# Source0-md5:	286d5d37c1d4f070527758e79706d1a7
 URL:		http://sourceforge.net/projects/soprano
 BuildRequires:	QtCore-devel >= %{qtbrver}
 BuildRequires:	QtDBus-devel >= %{qtbrver}
@@ -80,7 +81,11 @@ cd build
 %endif
 	-DJAVA_INCLUDE_PATH=%{_libdir}/gcc/%{_target_platform}/%{cc_version}/include \
 	-DJAVA_INCLUDE_PATH2=%{_libdir}/gcc/%{_target_platform}/%{cc_version}/include \
+%if "%{pld_release}" == "ti" 
+	-DJAVA_JVM_LIBRARY=%{_libdir}/gcj-%{cc_version}-9/libjvm.so \
+%else
 	-DJAVA_JVM_LIBRARY=%{_libdir}/gcj-%{cc_version}-10/libjvm.so \
+%endif
 	../
 
 %{__make}
