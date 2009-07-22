@@ -82,7 +82,7 @@ cd build
 	-DJAVA_INCLUDE_PATH=%{_libdir}/gcc/%{_target_platform}/%{cc_version}/include \
 	-DJAVA_INCLUDE_PATH2=%{_libdir}/gcc/%{_target_platform}/%{cc_version}/include \
 %if "%{pld_release}" == "ti" 
-	-DJAVA_JVM_LIBRARY=%{_libdir}/gcj-%{cc_version}-9/libjvm.so \
+	-DJAVA_JVM_LIBRARY=%{_libdir}/gcj-%{cc_version}-10/libjvm.so \
 %else
 	-DJAVA_JVM_LIBRARY=%{_libdir}/gcj-%{cc_version}-10/libjvm.so \
 %endif
@@ -137,5 +137,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libsopranoindex.so
 %dir %{_includedir}/soprano
 %{_includedir}/soprano/*.h
+%{_datadir}/apps/cmake/modules/SopranoAddOntology.cmake
 %{_includedir}/Soprano
 %{_pkgconfigdir}/soprano.pc
