@@ -8,17 +8,18 @@
 %bcond_without	sesame2			# with sesame2backend
 
 %define		qtbrver		4.6.0
-%define		svn		979183
+%define		snap		svn1042011
 
 Summary:	Soprano - Qt wrapper API to librdf
 Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
-Version:	2.3.1
-Release:	1
+Version:	2.3.2
+Release:	0.%{snap}.1
 License:	GPL v2
 Group:		X11/Applications
-Source0:	http://downloads.sourceforge.net/sourceforge/soprano/%{name}-%{version}.tar.bz2
-# Source0-md5:	c9a2c008b80cd5d76599e9d48139dfe9
+#Source0:	http://downloads.sourceforge.net/sourceforge/soprano/%{name}-%{version}.tar.bz2
+Source0:	%{name}-%{version}-%{snap}.tar.gz
+# Source0-md5:	736eca417813af6f725c2b7817967360
 URL:		http://sourceforge.net/projects/soprano
 BuildRequires:	QtCore-devel >= %{qtbrver}
 BuildRequires:	QtDBus-devel >= %{qtbrver}
@@ -62,7 +63,7 @@ Header files for soprano.
 Pliki nagłówkowe dla soprano.
 
 %prep
-%setup -q
+%setup -q -n %{name}-%{version}-%{snap}
 # Sesame2 backend doesn't really use the new JNI-1.6 feature -> GetObjectRefType.
 #sed -i 's:JNI_VERSION_1_6:JNI_VERSION_1_4:g' CMakeLists.txt
 # cleanup.
