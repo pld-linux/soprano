@@ -6,6 +6,7 @@
 # Conditional build:
 %bcond_without	serializer		# with raptor serializer. need to figure out proper BR
 %bcond_without	sesame2			# with sesame2backend
+%bcond_without	virtuoso		# with virtuosobackend
 
 %define		qtbrver		4.6.0
 %define		snap		svn1042011
@@ -29,6 +30,7 @@ BuildRequires:	clucene-core-devel >= 0.9.16a-2
 BuildRequires:	cmake >= 2.6.2
 %{?with_sesame2:BuildRequires: libgcj-devel}
 %{?with_serializer:BuildRequires:	libraptor-devel}
+%{?with_virtuoso:BuildRequires:	libiodbc-devel}
 BuildRequires:	qt4-build >= %{qtbrver}
 BuildRequires:	qt4-qmake >= %{qtbrver}
 BuildRequires:	rasqal-devel
@@ -123,6 +125,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorparser.so
 %{?with_sesame2:%attr(755,root,root) %{_libdir}/soprano/libsoprano_sesame2backend.so}
 %{?with_serializer:%attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorserializer.so}
+%{?with_virtuoso:%attr(755,root,root) %{_libdir}/soprano/libsoprano_virtuosobackend.so}
 %{_datadir}/soprano
 %{_datadir}/dbus-1/interfaces/org.soprano.Model.xml
 %{_datadir}/dbus-1/interfaces/org.soprano.NodeIterator.xml
