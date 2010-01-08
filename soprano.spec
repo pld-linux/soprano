@@ -64,6 +64,14 @@ Header files for soprano.
 %description devel -l pl.UTF-8
 Pliki nagłówkowe dla soprano.
 
+%package plugin-virtuoso
+Summary:	virtuoso plugin for soprano
+Group:		Applications
+Requires:	%{name} = %{version}-%{release}
+
+%description plugin-virtuoso
+Virtuoso plugin for soprano.
+
 %prep
 %setup -q
 # Sesame2 backend doesn't really use the new JNI-1.6 feature -> GetObjectRefType.
@@ -125,7 +133,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorparser.so
 %{?with_sesame2:%attr(755,root,root) %{_libdir}/soprano/libsoprano_sesame2backend.so}
 %{?with_serializer:%attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorserializer.so}
-%{?with_virtuoso:%attr(755,root,root) %{_libdir}/soprano/libsoprano_virtuosobackend.so}
 %{_datadir}/soprano
 %{_datadir}/dbus-1/interfaces/org.soprano.Model.xml
 %{_datadir}/dbus-1/interfaces/org.soprano.NodeIterator.xml
@@ -143,3 +150,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/soprano/*.h
 %{_includedir}/Soprano
 %{_pkgconfigdir}/soprano.pc
+
+%if %{with virtuoso}
+%files plugin-virtuoso
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/soprano/libsoprano_virtuosobackend.so
+%endif
