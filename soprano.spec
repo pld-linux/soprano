@@ -37,7 +37,7 @@ BuildRequires:	redland-devel >= 1.0.6
 BuildRequires:	rpmbuild(macros) >= 1.453
 %if %{with virtuoso}
 BuildRequires:	libiodbc-devel
-Suggests:	virtuoso
+Suggests:	virtuoso >= 6.1.0
 %endif
 BuildConflicts:	java-sun
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
