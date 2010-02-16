@@ -6,19 +6,21 @@
 # Conditional build:
 %bcond_without	serializer		# with raptor serializer. need to figure out proper BR
 %bcond_without	sesame2			# with sesame2backend
+%bcond_without	virtuoso		# with virtuosobackend
 
-%define		qtbrver		4.6.0
-%define		svn		979183
+%define		qtbrver		4.6.1
+%define		snap		svn1042011
 
 Summary:	Soprano - Qt wrapper API to librdf
 Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
-Version:	2.3.1
+Version:	2.4.0.1
 Release:	1
 License:	GPL v2
 Group:		X11/Applications
 Source0:	http://downloads.sourceforge.net/sourceforge/soprano/%{name}-%{version}.tar.bz2
-# Source0-md5:	c9a2c008b80cd5d76599e9d48139dfe9
+# Source0-md5:	6175a3b342a77a7adc6f157cf4968f6d
+#Source0:	%{name}-%{version}-%{snap}.tar.gz
 URL:		http://sourceforge.net/projects/soprano
 BuildRequires:	QtCore-devel >= %{qtbrver}
 BuildRequires:	QtDBus-devel >= %{qtbrver}
@@ -33,7 +35,10 @@ BuildRequires:	qt4-qmake >= %{qtbrver}
 BuildRequires:	rasqal-devel
 BuildRequires:	redland-devel >= 1.0.6
 BuildRequires:	rpmbuild(macros) >= 1.453
-BuildConflicts:	java-sun
+%if %{with virtuoso}
+BuildRequires:	libiodbc-devel
+Requires:	virtuoso >= 6.1.0
+%endif
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -122,6 +127,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorparser.so
 %{?with_sesame2:%attr(755,root,root) %{_libdir}/soprano/libsoprano_sesame2backend.so}
 %{?with_serializer:%attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorserializer.so}
+%{?with_virtuoso:%attr(755,root,root) %{_libdir}/soprano/libsoprano_virtuosobackend.so}
 %{_datadir}/soprano
 %{_datadir}/dbus-1/interfaces/org.soprano.Model.xml
 %{_datadir}/dbus-1/interfaces/org.soprano.NodeIterator.xml
