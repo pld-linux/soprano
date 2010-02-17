@@ -24,8 +24,8 @@ Source0:	http://downloads.sourceforge.net/sourceforge/soprano/%{name}-%{version}
 URL:		http://sourceforge.net/projects/soprano
 BuildRequires:	QtCore-devel >= %{qtbrver}
 BuildRequires:	QtDBus-devel >= %{qtbrver}
+BuildRequires:	QtGui-devel >= %{qtbrver}
 BuildRequires:	QtNetwork-devel >= %{qtbrver}
-BuildRequires:	QtTest-devel >= %{qtbrver}
 BuildRequires:	clucene-core-devel >= 0.9.16a-2
 BuildRequires:	cmake >= 2.6.2
 %{?with_sesame2:BuildRequires: libgcj-devel}
@@ -35,6 +35,8 @@ BuildRequires:	qt4-qmake >= %{qtbrver}
 BuildRequires:	rasqal-devel
 BuildRequires:	redland-devel >= 1.0.6
 BuildRequires:	rpmbuild(macros) >= 1.453
+BuildRequires:	xorg-lib-libX11-devel
+BuildRequires:	xorg-lib-libXext-devel
 %if %{with virtuoso}
 BuildRequires:	libiodbc-devel
 Requires:	virtuoso >= 6.1.0
@@ -48,11 +50,10 @@ graphs (contexts) and has a modular plug-in structure which allows to
 use different RDF storage implementations.
 
 %description -l pl.UTF-8
-Soprano (wcześniej znane jako QRDF) to biblioteka udostępniająca
-API wrappera Qt do różnych rozwiązań przechowywania danych RDF.
-Obsługuje nazwane grafy (konteksty) i ma strukturę modularnych
-wtyczek, co pozwala na używanie różnych implementacji
-przechowywania danych RDF.
+Soprano (wcześniej znane jako QRDF) to biblioteka udostępniająca API
+wrappera Qt do różnych rozwiązań przechowywania danych RDF. Obsługuje
+nazwane grafy (konteksty) i ma strukturę modularnych wtyczek, co
+pozwala na używanie różnych implementacji przechowywania danych RDF.
 
 %package devel
 Summary:	Header files for soprano
@@ -86,7 +87,7 @@ cd build
 %endif
 	-DJAVA_INCLUDE_PATH=%{_libdir}/gcc/%{_target_platform}/%{cc_version}/include \
 	-DJAVA_INCLUDE_PATH2=%{_libdir}/gcc/%{_target_platform}/%{cc_version}/include \
-%if "%{pld_release}" == "ti" 
+%if "%{pld_release}" == "ti"
 	-DJAVA_JVM_LIBRARY=%{_libdir}/gcj-%{cc_version}-9/libjvm.so \
 %else
 	-DJAVA_JVM_LIBRARY=%{_libdir}/gcj-%{cc_version}-10/libjvm.so \
