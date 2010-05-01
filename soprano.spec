@@ -87,7 +87,12 @@ cd build
 %endif
 	-DJAVA_INCLUDE_PATH=%{_libdir}/gcc/%{_target_platform}/%{cc_version}/include \
 	-DJAVA_INCLUDE_PATH2=%{_libdir}/gcc/%{_target_platform}/%{cc_version}/include \
+%if "%{pld_release}" == "ti"
 	-DJAVA_JVM_LIBRARY=%{_libdir}/gcj-%{cc_version}-10/libjvm.so \
+%else
+	-DJAVA_JVM_LIBRARY=%{_libdir}/gcj-%{cc_version}-11/libjvm.so \
+%endif
+
 	../
 
 %{__make}
