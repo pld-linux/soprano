@@ -92,7 +92,6 @@ cd build
 %else
 	-DJAVA_JVM_LIBRARY=%{_libdir}/gcj-%{cc_version}-11/libjvm.so \
 %endif
-
 	../
 
 %{__make}
