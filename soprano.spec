@@ -19,7 +19,7 @@ Release:	1
 License:	GPL v2
 Group:		X11/Applications
 Source0:	http://downloads.sourceforge.net/project/soprano/Soprano/%{version}/%{name}-%{version}.tar.bz2
-# Source0-md5:	5a063a01849437b7142b41c59702a062
+# Source0-md5:	5a063a01849437b7142b41c59702a061
 #Source0:	%{name}-%{version}-%{snap}.tar.gz
 URL:		http://sourceforge.net/projects/soprano
 BuildRequires:	QtCore-devel >= %{qtbrver}
