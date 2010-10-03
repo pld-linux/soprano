@@ -8,18 +8,18 @@
 %bcond_without	sesame2			# with sesame2backend
 %bcond_without	virtuoso		# with virtuosobackend
 
-%define		qtbrver		4.6.2
+%define		qtbrver		4.7.0
 %define		snap		svn1042011
 
 Summary:	Soprano - Qt wrapper API to librdf
 Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
-Version:	2.4.64
+Version:	2.5.2
 Release:	1
 License:	GPL v2
 Group:		X11/Applications
 Source0:	http://downloads.sourceforge.net/sourceforge/soprano/%{name}-%{version}.tar.bz2
-# Source0-md5:	edb7f48dd4cc0d5baa75797520c189fc
+# Source0-md5:	c5562bae458cad6f5d4f344277a9a48a
 #Source0:	%{name}-%{version}-%{snap}.tar.gz
 URL:		http://sourceforge.net/projects/soprano
 BuildRequires:	QtCore-devel >= %{qtbrver}
