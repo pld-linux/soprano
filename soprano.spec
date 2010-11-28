@@ -27,7 +27,7 @@ BuildRequires:	QtDBus-devel >= %{qtbrver}
 BuildRequires:	QtGui-devel >= %{qtbrver}
 BuildRequires:	QtNetwork-devel >= %{qtbrver}
 BuildRequires:	clucene-core-devel >= 0.9.16a-2
-BuildRequires:	cmake >= 2.6.2
+BuildRequires:	cmake >= 2.8.0
 %{?with_sesame2:BuildRequires: libgcj-devel}
 %{?with_serializer:BuildRequires:	libraptor-devel}
 BuildRequires:	qt4-build >= %{qtbrver}
@@ -88,7 +88,7 @@ cd build
 	-DJAVA_INCLUDE_PATH=%{_libdir}/gcc/%{_target_platform}/%{cc_version}/include \
 	-DJAVA_INCLUDE_PATH2=%{_libdir}/gcc/%{_target_platform}/%{cc_version}/include \
 %if "%{pld_release}" == "ti"
-	-DJAVA_JVM_LIBRARY=%{_libdir}/gcj-%{cc_version}-10/libjvm.so \
+	-DJAVA_JVM_LIBRARY=%{_libdir}/gcj-%{cc_version}-11/libjvm.so \
 %else
 	-DJAVA_JVM_LIBRARY=%{_libdir}/gcj-%{cc_version}-11/libjvm.so \
 %endif
