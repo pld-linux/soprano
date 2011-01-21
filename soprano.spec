@@ -34,7 +34,7 @@ BuildRequires:	qt4-build >= %{qtbrver}
 BuildRequires:	qt4-qmake >= %{qtbrver}
 BuildRequires:	rasqal-devel
 BuildRequires:	redland-devel >= 1.0.6
-BuildRequires:	rpmbuild(macros) >= 1.453
+BuildRequires:	rpmbuild(macros) >= 1.600
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXext-devel
 %if %{with virtuoso}
@@ -80,11 +80,6 @@ cd build
 # add this to get verbose output
 # -DCMAKE_VERBOSE_MAKEFILE=1
 %cmake \
-	-DCMAKE_INSTALL_PREFIX=%{_prefix} \
-	-DQT_QMAKE_EXECUTABLE=%{_bindir}/qmake-qt4 \
-%if "%{_lib}" == "lib64"
-	-DLIB_SUFFIX=64 \
-%endif
 	-DJAVA_INCLUDE_PATH=%{_libdir}/gcc/%{_target_platform}/%{cc_version}/include \
 	-DJAVA_INCLUDE_PATH2=%{_libdir}/gcc/%{_target_platform}/%{cc_version}/include \
 %if "%{pld_release}" == "ti"
