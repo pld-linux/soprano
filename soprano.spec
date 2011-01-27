@@ -18,7 +18,7 @@ Version:	2.5.63
 Release:	1
 License:	GPL v2
 Group:		X11/Applications
-Source0:	http://downloads.sourceforge.net/sourceforge/soprano/%{name}-%{version}.tar.bz2
+Source0:	http://downloads.sourceforge.net/soprano/%{name}-%{version}.tar.bz2
 # Source0-md5:	bef6147f1245cd99aa9ad1a37f7d48ac
 #Source0:	%{name}-%{version}-%{snap}.tar.gz
 URL:		http://sourceforge.net/projects/soprano
@@ -30,6 +30,7 @@ BuildRequires:	clucene-core-devel >= 0.9.16a-2
 BuildRequires:	cmake >= 2.8.0
 %{?with_sesame2:BuildRequires: libgcj-devel}
 %{?with_serializer:BuildRequires:	libraptor-devel}
+BuildRequires:	pkgconfig
 BuildRequires:	qt4-build >= %{qtbrver}
 BuildRequires:	qt4-qmake >= %{qtbrver}
 BuildRequires:	rasqal-devel
