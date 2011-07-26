@@ -8,19 +8,20 @@
 %bcond_without	sesame2			# with sesame2backend
 %bcond_without	virtuoso		# with virtuosobackend
 
-%define		qtbrver		4.7.1
+%define		qtbrver		4.7.3
 %define		snap		svn1042011
 
 Summary:	Soprano - Qt wrapper API to librdf
 Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
-Version:	2.6.0
+Version:	2.6.51
 Release:	1
 License:	GPL v2
 Group:		X11/Applications
 Source0:	http://downloads.sourceforge.net/soprano/%{name}-%{version}.tar.bz2
-# Source0-md5:	03ae49e87c6ec99e57d0433c2650846f
+# Source0-md5:	574e006a15e61bc2d4d07d2b4a36e2b6
 #Source0:	%{name}-%{version}-%{snap}.tar.gz
+Patch0:		%{name}-git.patch
 URL:		http://sourceforge.net/projects/soprano
 BuildRequires:	QtCore-devel >= %{qtbrver}
 BuildRequires:	QtDBus-devel >= %{qtbrver}
@@ -34,7 +35,7 @@ BuildRequires:	pkgconfig
 BuildRequires:	qt4-build >= %{qtbrver}
 BuildRequires:	qt4-qmake >= %{qtbrver}
 BuildRequires:	rasqal-devel
-BuildRequires:	redland-devel >= 1.0.6
+BuildRequires:	redland-devel >= 1.0.14
 BuildRequires:	rpmbuild(macros) >= 1.600
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXext-devel
@@ -70,6 +71,7 @@ Pliki nagłówkowe dla soprano.
 
 %prep
 %setup -q
+%patch0 -p1
 # Sesame2 backend doesn't really use the new JNI-1.6 feature -> GetObjectRefType.
 #sed -i 's:JNI_VERSION_1_6:JNI_VERSION_1_4:g' CMakeLists.txt
 # cleanup.
@@ -86,7 +88,7 @@ cd build
 %if "%{pld_release}" == "ti"
 	-DJAVA_JVM_LIBRARY=%{_libdir}/gcj-%{cc_version}-11/libjvm.so \
 %else
-	-DJAVA_JVM_LIBRARY=%{_libdir}/gcj-%{cc_version}-11/libjvm.so \
+	-DJAVA_JVM_LIBRARY=$(ls -1 %{_libdir}/gcj-%{cc_version}-*/libjvm.so | head -n 1) \
 %endif
 	../
 

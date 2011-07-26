@@ -1,0 +1,1254 @@
+From: Artem Serebriyskiy <v.for.vandal@gmail.com>
+Date: Fri, 24 Jun 2011 12:46:03 +0000
+Subject: Porting serializer and parser to Raptor2
+X-Git-Url: http://quickgit.kde.org/?p=soprano.git&amp;a=commitdiff&amp;h=3a7a527fd07c0d58146eb9e6770ecbcfb6717bc6
+---
+Porting serializer and parser to Raptor2
+
+1) Changes in  FindRaptor.cmake - use pkg-config instead of removed
+raptor-config
+2) Changes in serializer - port to raptor2
+3) Changes in parser - port to raptor2, includes patches by Smit Shah.
+Due to incorrect behaviour of raptor2 ( mess with qnames )
+onto2vocabulary not working
+4) Write a test for serializers
+---
+
+
+--- a/cmake/modules/FindRaptor.cmake
++++ b/cmake/modules/FindRaptor.cmake
+@@ -5,99 +5,62 @@
+ #  RAPTOR_LIBRARIES   - Link these to use Raptor
+ #  RAPTOR_INCLUDE_DIR - Include directory for using Raptor
+ #  RAPTOR_DEFINITIONS - Compiler switches required for using Raptor
+-#  RAPTOR_VERSION     - The Raptor version string
+ 
+-# (c) 2007-2009 Sebastian Trueg <trueg@kde.org>
++# (c) 2007-2011 Sebastian Trueg <trueg@kde.org>
++# (c) 2011 Artem Serebriyskiy <v.for.vandal@gmail.com>
+ #
+ # Based on FindFontconfig Copyright (c) 2006,2007 Laurent Montel, <montel@kde.org>
+ #
+ # Redistribution and use is allowed according to the terms of the BSD license.
+ # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
+ 
++include(FindLibraryWithDebug)
++include(MacroEnsureVersion)
+ 
+-INCLUDE(MacroEnsureVersion)
++if (RAPTOR_INCLUDE_DIR AND RAPTOR_LIBRARIES)
++
++  # in cache already
++  set(RAPTOR_FOUND TRUE)
+ 
++else (RAPTOR_INCLUDE_DIR AND RAPTOR_LIBRARIES)
+ 
+-if(WINCE)
+-FIND_PROGRAM(
+-  RAPTOR_CONFIG
+-  NAMES raptor-config
+-  PATHS ${HOST_BINDIR} NO_DEFAULT_PATH
+-  )
+-else(WINCE)
+-FIND_PROGRAM(
+-  RAPTOR_CONFIG
+-  NAMES raptor-config
+-  )
+-endif(WINCE)
+-
+-if(RAPTOR_CONFIG)
+-  EXECUTE_PROCESS(
+-    COMMAND ${RAPTOR_CONFIG} --version
+-    OUTPUT_VARIABLE RAPTOR_VERSION
+-    )
+-  if(RAPTOR_VERSION)
+-    STRING(REPLACE "\n" "" RAPTOR_VERSION ${RAPTOR_VERSION})
+-    
++
++  if (NOT WIN32)
++    find_package(PkgConfig)
++    pkg_check_modules(PC_RAPTOR QUIET raptor2)
++    set(RAPTOR_DEFINITIONS ${PC_RAPTOR_CFLAGS_OTHER})
++    set(RAPTOR_VERSION ${PC_RAPTOR_VERSION})
++  endif (NOT WIN32)
++
++
++  find_library_with_debug(RAPTOR_LIBRARIES
++                  WIN32_DEBUG_POSTFIX d
++                  NAMES raptor2 
++                  HINTS ${PC_RAPTOR_LIBDIR} ${PC_RAPTOR_LIBRARY_DIRS}
++                  )
++
++  find_path(RAPTOR_INCLUDE_DIR raptor.h
++            HINTS ${PC_RAPTOR_INCLUDEDIR} ${PC_RAPTOR_INCLUDE_DIRS}
++            PATH_SUFFIXES raptor2 )
++  
++  if (RAPTOR_VERSION)
+     MACRO_ENSURE_VERSION("1.4.16" ${RAPTOR_VERSION} RAPTOR_HAVE_TRIG)
+-    
+-    # extract include paths from raptor-config
+-    EXECUTE_PROCESS(
+-      COMMAND ${RAPTOR_CONFIG} --cflags
+-      OUTPUT_VARIABLE raptor_CFLAGS_ARGS)
+-    STRING( REPLACE " " ";" raptor_CFLAGS_ARGS ${raptor_CFLAGS_ARGS} )
+-    FOREACH( _ARG ${raptor_CFLAGS_ARGS} )
+-      IF(${_ARG} MATCHES "^-I")
+-        STRING(REGEX REPLACE "^-I" "" _ARG ${_ARG})
+-        STRING( REPLACE "\n" "" _ARG ${_ARG} )
+-        LIST(APPEND raptor_INCLUDE_DIRS ${_ARG})
+-      ENDIF(${_ARG} MATCHES "^-I")
+-    ENDFOREACH(_ARG)
+-    
+-    # extract lib paths from raptor-config
+-    EXECUTE_PROCESS(
+-      COMMAND ${RAPTOR_CONFIG} --libs
+-      OUTPUT_VARIABLE raptor_CFLAGS_ARGS)
+-    STRING( REPLACE " " ";" raptor_CFLAGS_ARGS ${raptor_CFLAGS_ARGS} )
+-    FOREACH( _ARG ${raptor_CFLAGS_ARGS} )
+-      IF(${_ARG} MATCHES "^-L")
+-        STRING(REGEX REPLACE "^-L" "" _ARG ${_ARG})
+-        LIST(APPEND raptor_LIBRARY_DIRS ${_ARG})
+-      ENDIF(${_ARG} MATCHES "^-L")
+-    ENDFOREACH(_ARG)
+-  endif(RAPTOR_VERSION)
+-else(RAPTOR_CONFIG)
+-  SET(RAPTOR_VERSION "1.0.0")
+-endif(RAPTOR_CONFIG)
+-
+-find_path(RAPTOR_INCLUDE_DIR raptor.h
+-  PATHS
+-  ${redland_INCLUDE_DIRS}
+-  ${raptor_INCLUDE_DIRS}
+-  /usr/X11/include
+-  PATH_SUFFIXES redland
+-  )
+-
+-find_library(RAPTOR_LIBRARIES NAMES raptor libraptor
+-  PATHS
+-  ${raptor_LIBRARY_DIRS}
+-  )
++  endif (RAPTOR_VERSION)
++
++  if (RAPTOR_FOUND)
++    if (NOT Raptor_FIND_QUIETLY)
++      message(STATUS "Found Raptor ${RAPTOR_VERSION}: libs - ${RAPTOR_LIBRARIES}; includes - ${RAPTOR_INCLUDE_DIR}")
++    endif (NOT Raptor_FIND_QUIETLY)
++  else (RAPTOR_FOUND)
++    if (Raptor_FIND_REQUIRED)
++      message(FATAL_ERROR "Could NOT find Raptor")
++    endif (Raptor_FIND_REQUIRED)
++  endif (RAPTOR_FOUND)
++
++  include(FindPackageHandleStandardArgs)
++  find_package_handle_standard_args(RAPTOR  DEFAULT_MSG  RAPTOR_LIBRARIES RAPTOR_INCLUDE_DIR)
++
++  mark_as_advanced(RAPTOR_INCLUDE_DIR RAPTOR_LIBRARIES)
+ 
+-if (RAPTOR_INCLUDE_DIR AND RAPTOR_LIBRARIES)
+-  set(RAPTOR_FOUND TRUE)
+ endif (RAPTOR_INCLUDE_DIR AND RAPTOR_LIBRARIES)
+ 
+-if (RAPTOR_FOUND)
+-  set(RAPTOR_DEFINITIONS ${raptor_CFLAGS})
+-  if (NOT Raptor_FIND_QUIETLY)
+-    message(STATUS "Found Raptor ${RAPTOR_VERSION}: libs - ${RAPTOR_LIBRARIES}; includes - ${RAPTOR_INCLUDE_DIR}")
+-  endif (NOT Raptor_FIND_QUIETLY)
+-else (RAPTOR_FOUND)
+-  if (Raptor_FIND_REQUIRED)
+-    message(FATAL_ERROR "Could NOT find Raptor")
+-  endif (Raptor_FIND_REQUIRED)
+-endif (RAPTOR_FOUND)
+-
+-mark_as_advanced(RAPTOR_INCLUDE_DIR_TMP
+-  RAPTOR_INCLUDE_DIR
+-  RAPTOR_LIBRARIES)
+
+--- a/parsers/raptor/CMakeLists.txt
++++ b/parsers/raptor/CMakeLists.txt
+@@ -13,13 +13,11 @@ set(raptor_parser_SRC
+   raptorparser.cpp
+ )
+ 
+-configure_file(raptor-config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/raptor-config.h)
+-
+ qt4_automoc(${raptor_parser_SRC})
+ 
+-add_library(soprano_raptorparser MODULE ${raptor_parser_SRC})
++add_library(soprano_raptorparser  MODULE ${raptor_parser_SRC})
+ 
+-TARGET_LINK_LIBRARIES(soprano_raptorparser soprano ${RAPTOR_LIBRARIES})
++TARGET_LINK_LIBRARIES(soprano_raptorparser soprano raptor2 ${RAPTOR_LIBRARIES})
+ 
+ set_target_properties(soprano_raptorparser PROPERTIES
+   DEFINE_SYMBOL MAKE_RAPTORPARSER_LIB
+
+--- a/parsers/raptor/raptor-config.h.cmake
++++ /dev/null
+@@ -1 +0,0 @@
+-#cmakedefine RAPTOR_HAVE_TRIG
+
+--- a/parsers/raptor/raptorparser.cpp
++++ b/parsers/raptor/raptorparser.cpp
+@@ -22,14 +22,13 @@
+  */
+ 
+ #include "raptorparser.h"
+-#include "raptor-config.h"
+ 
+ #include "util/simplestatementiterator.h"
+ #include "statement.h"
+ #include "locator.h"
+ #include "error.h"
+ 
+-#include <raptor.h>
++#include <raptor2/raptor.h>
+ 
+ #include <QtCore/QUrl>
+ #include <QtCore/QFile>
+@@ -41,18 +40,24 @@
+ 
+ 
+ namespace {
++    /*
+     class RaptorInitHelper
+     {
+     public:
++        raptor_world* world;
++
+         RaptorInitHelper() {
+-            raptor_init();
++            world = raptor_new_world();
++            raptor_world_open(world);
+         }
+         ~RaptorInitHelper() {
+-            raptor_finish();
++            raptor_free_world(world);
+         }
+     };
++    */
+ }
+ 
++
+ Q_EXPORT_PLUGIN2(soprano_raptorparser, Soprano::Raptor::Parser)
+ 
+ namespace {
+@@ -60,68 +65,111 @@ namespace {
+     // and application/x-turtle when serializing, but not the other way around
+     QString mimeTypeString( Soprano::RdfSerialization s, const QString& userSerialization )
+     {
+-#ifndef RAPTOR_HAVE_TRIG
+         if ( s == Soprano::SerializationTurtle ) {
+             return "application/turtle"; // x-turtle does not work....
+         }
+-        else
+-#endif
+-        {
++        else {
+             return serializationMimeType( s, userSerialization );
+         }
+     }
+ 
+ 
+-    void raptorMessageHandler( void* userData, raptor_locator* locator, const char* message )
++    void  raptorLogHandler(void *userData,raptor_log_message *message)
+     {
+         Soprano::Raptor::Parser* p = static_cast<Soprano::Raptor::Parser*>( userData );
+-        if ( locator ) {
+-            p->setError( Soprano::Error::ParserError( Soprano::Error::Locator( locator->line, locator->column, locator->byte ),
+-                                                      QString::fromUtf8( message ),
++        if ( message->locator ) {
++            p->setError( Soprano::Error::ParserError( Soprano::Error::Locator( message->locator->line, message->locator->column, message->locator->byte ),
++                                                      QString::fromUtf8( message->text ),
+                                                       Soprano::Error::ErrorParsingFailed ) );
+         }
+         else {
+-            p->setError( Soprano::Error::Error( QString::fromUtf8( message ), Soprano::Error::ErrorUnknown ) );
++            p->setError( Soprano::Error::Error( QString::fromUtf8( message->text ), Soprano::Error::ErrorUnknown ) );
+         }
++        qDebug() << "Error: " << message->text;
++    }
++
++    void raptorLogNamespaceHandler(void * userData, raptor_namespace *nspace)
++    {
++        if ( nspace )
++            qDebug() << "Discover namespace: " << (const char*)raptor_namespace_get_prefix(nspace);
+     }
+ 
++    void raptorLogGraphHandler( void * userData, raptor_uri* graph,int flags )
++    {
++        if ( graph ) {
++            const char * str = (const char*)raptor_uri_as_string(graph);
++            if ( str )
++                if ( flags & RAPTOR_GRAPH_MARK_START )
++                    qDebug() << "Start graph: " << str;
++                else
++                   qDebug() << "End graph: " << str ;
++        }
++    }
+ 
+-    Soprano::Node convertNode( const void* data, raptor_identifier_type type,
+-                               raptor_uri* objectLiteralDatatype = 0, const unsigned char* objectLiteralLanguage = 0 )
++    Soprano::Node convertNode( raptor_term * term)
+     {
++        //qDebug() << "Convert node";
++        Q_ASSERT(term);
++        raptor_term_type type = term->type;
++        raptor_term_value data = term->value;
++
++        Soprano::Node answer;
++
+         switch( type ) {
+-        case RAPTOR_IDENTIFIER_TYPE_RESOURCE:
+-        case RAPTOR_IDENTIFIER_TYPE_PREDICATE:
+-        case RAPTOR_IDENTIFIER_TYPE_ORDINAL:
+-            return Soprano::Node::createResourceNode( QString::fromUtf8( ( char* )raptor_uri_as_string( ( raptor_uri* )data ) ) );
+-
+-        case RAPTOR_IDENTIFIER_TYPE_ANONYMOUS:
+-            return Soprano::Node::createBlankNode( QString::fromUtf8( ( const char* )data ) );
+-
+-        case RAPTOR_IDENTIFIER_TYPE_LITERAL:
+-        case RAPTOR_IDENTIFIER_TYPE_XML_LITERAL:
+-            if ( objectLiteralDatatype ) {
+-                return Soprano::Node::createLiteralNode( Soprano::LiteralValue::fromString( QString::fromUtf8( ( const char* )data ),
+-                                                                                            QString::fromUtf8( ( char* )raptor_uri_as_string( objectLiteralDatatype ) ) ) );
++
++        case RAPTOR_TERM_TYPE_URI: {
++            answer = Soprano::Node::createResourceNode(
++                    QString::fromUtf8( ( char* )raptor_uri_as_string( data.uri ) ) );
++            break;
++                                   }
++
++        case RAPTOR_TERM_TYPE_BLANK: {
++            raptor_term_blank_value bv = data.blank;
++            answer = Soprano::Node::createBlankNode(
++                    QString::fromUtf8( ( const char* )(bv.string) ) );
++            break;
++                                     }
++
++        case RAPTOR_TERM_TYPE_LITERAL: {
++            raptor_term_literal_value lv = data.literal;
++
++            if ( lv.datatype ) {
++                answer = Soprano::Node::createLiteralNode(
++                        Soprano::LiteralValue::fromString(
++                            QString::fromUtf8( ( const char* )lv.string ),
++                            QString::fromUtf8(
++                                ( char* )raptor_uri_as_string(lv.datatype )
++                                )
++                            )
++                        );
+             }
+             else {
+-                return Soprano::Node::createLiteralNode( Soprano::LiteralValue::createPlainLiteral( QString::fromUtf8( ( const char* )data ),
+-                                                                                                    QString::fromUtf8( ( const char* )objectLiteralLanguage ) ) );
++                answer = Soprano::Node::createLiteralNode(
++                        Soprano::LiteralValue::createPlainLiteral(
++                            QString::fromUtf8( ( const char* )lv.string ),
++                            QString::fromUtf8( ( const char* )lv.language ) ) );
+             }
++            break;
++                                       }
+ 
+         default:
+-            return Soprano::Node();
++            answer =  Soprano::Node();
++            break;
+         }
+-    }
+ 
++        //qDebug() << "Node: " << answer;
++        return answer;
++    }
+ 
+     Soprano::Statement convertTriple( const raptor_statement* triple )
+     {
+-        return Soprano::Statement( convertNode( triple->subject, triple->subject_type ),
+-                                   convertNode( triple->predicate, triple->predicate_type ),
+-                                   convertNode( triple->object, triple->object_type,
+-                                                triple->object_literal_datatype,
+-                                                triple->object_literal_language ) );
++        Soprano::Statement answer = Soprano::Statement( convertNode( triple->subject),
++                                   convertNode( triple->predicate),
++                                   convertNode( triple->object),
++                                   (triple->graph)?convertNode(triple->graph):(Soprano::Node())
++                                   );
++        //qDebug() << "Statement: " << answer;
++        return answer;
+     }
+ 
+ 
+@@ -132,35 +180,49 @@ namespace {
+     };
+ 
+ 
+-    void raptorTriplesHandler( void* userData, const raptor_statement* triple )
++    void raptorTriplesHandler( void* userData, raptor_statement* triple )
+     {
++        Q_ASSERT(userData);
+         ParserData* pd = static_cast<ParserData*>( userData );
+         Soprano::Statement s = convertTriple( triple );
+-//        qDebug() << "got triple: " << s;
+-        s.setContext( pd->currentContext );
++
++        //s.setContext( pd->currentContext );
+         pd->statements.append( s );
+     }
+ 
+ 
+-    void raptorGraphHandler( void* userData, raptor_uri* graph )
+-    {
++    void raptorGraphMarkHandler( void* userData, raptor_uri* graph,int flags )
++    {  flags=1;
+         Soprano::Node context = Soprano::Node::createResourceNode( QString::fromUtf8( ( char* )raptor_uri_as_string( graph ) ) );
+         ParserData* pd = static_cast<ParserData*>( userData );
+         pd->currentContext = context;
+-//        qDebug() << "got graph: " << context;
+     }
+ }
+ 
+ 
++class Soprano::Raptor::Parser::Private
++{
++    public:
++        raptor_world * world;
++        mutable QMutex mutex;
++};
++
++
+ Soprano::Raptor::Parser::Parser()
+     : QObject(),
+-      Soprano::Parser( "raptor" )
++    Soprano::Parser( "raptor" )
+ {
++    this->d = new Private();
++    this->d->world = raptor_new_world();
++    raptor_world_open(d->world);
++    Q_ASSERT(d->world);
+ }
+ 
+ 
+ Soprano::Raptor::Parser::~Parser()
+ {
++    raptor_free_world(d->world);
++    delete this->d;
+ }
+ 
+ 
+@@ -169,10 +231,8 @@ Soprano::RdfSerializations Soprano::Rapt
+     return(  SerializationRdfXml
+              |SerializationNTriples
+              |SerializationTurtle
+-#ifdef RAPTOR_HAVE_TRIG
+              |SerializationTrig
+-#endif
+-        );
++             );
+ }
+ 
+ 
+@@ -183,10 +243,11 @@ raptor_parser* Soprano::Raptor::Parser::
+     QString mimeType = mimeTypeString( serialization, userSerialization );
+     raptor_parser* parser = 0;
+     if ( serialization == Soprano::SerializationNTriples ) {
+-        parser = raptor_new_parser( "ntriples" ); // mimetype for ntriple is text/plain which is useless for the method below
++        parser = raptor_new_parser(d->world,"ntriples"); // mimetype for ntriple is text/plain which is useless for the method below
+     }
+     else {
+-        parser = raptor_new_parser_for_content( 0,
++        parser = raptor_new_parser_for_content( d->world,
++                                                0,
+                                                 mimeType.toLatin1().data(),
+                                                 0,
+                                                 0,
+@@ -201,9 +262,7 @@ raptor_parser* Soprano::Raptor::Parser::
+ 
+     // set the erro handling method
+     Parser* that = const_cast<Parser*>( this );
+-    raptor_set_fatal_error_handler( parser, that, raptorMessageHandler );
+-    raptor_set_error_handler( parser, that, raptorMessageHandler );
+-    raptor_set_warning_handler( parser, that, raptorMessageHandler );
++    raptor_world_set_log_handler(d->world,that, raptorLogHandler);
+ 
+     return parser;
+ }
+@@ -223,48 +282,6 @@ Soprano::StatementIterator Soprano::Rapt
+         setError( QString( "Could not open file %1 for reading." ).arg( filename ) );
+         return StatementIterator();
+     }
+-
+-//     clearError();
+-
+-//     raptor_parser* parser = createParser( serialization, userSerialization );
+-//     if ( !parser ) {
+-//         return StatementIterator();
+-//     }
+-
+-//     // prepare the container for the parsed data
+-//     QList<Statement> statements;
+-//     raptor_set_statement_handler( parser, &statements, raptorTriplesHandler );
+-
+-//     // start the atual parsing
+-//     QUrl uri( QUrl::fromLocalFile( filename ) );
+-//     if ( uri.scheme().isEmpty() ) {
+-//         // we need to help the stupid librdf file url handling
+-//         uri.setScheme("file");
+-//     }
+-//     raptor_uri* raptorBaseUri = 0;
+-//     if ( !baseUri.toString().isEmpty() ) {
+-//         raptorBaseUri = raptor_new_uri( (unsigned char *) baseUri.toString().toUtf8().data() );
+-//     }
+-//     raptor_uri* raptorUri = raptor_new_uri( (unsigned char *) uri.toString().toUtf8().data() );
+-//     if ( !raptorUri ) {
+-//         setError( QLatin1String( "Internal: Failed to create raptor_uri instance for '%1'" ).arg( uri ) );
+-//         return StatementIterator();
+-//     }
+-
+-//     int r = raptor_parse_uri( parser, raptorUri, raptorBaseUri );
+-
+-//     raptor_free_parser( parser );
+-//     raptor_free_uri( raptorUri );
+-//     if ( raptorBaseUri ) {
+-//         raptor_free_uri( raptorBaseUri );
+-//     }
+-
+-//     if ( r == 0 ) {
+-//         return SimpleStatementIterator( statements );
+-//     }
+-//     else {
+-//         return StatementIterator();
+-//     }
+ }
+ 
+ 
+@@ -280,13 +297,13 @@ Soprano::StatementIterator Soprano::Rapt
+ 
+ 
+ Soprano::StatementIterator
+-Soprano::Raptor::Parser::parseStream( QTextStream& stream,
+-                                      const QUrl& baseUri,
+-                                      RdfSerialization serialization,
+-                                      const QString& userSerialization ) const
++        Soprano::Raptor::Parser::parseStream( QTextStream& stream,
++                                              const QUrl& baseUri,
++                                              RdfSerialization serialization,
++                                              const QString& userSerialization ) const
+ {
+-    QMutexLocker lock( &m_mutex );
+-    RaptorInitHelper raptorInitHelper;
++    //qDebug() << "parseStream";
++    QMutexLocker lock( &(d->mutex) );
+ 
+     clearError();
+ 
+@@ -297,22 +314,23 @@ Soprano::Raptor::Parser::parseStream( QT
+ 
+     // prepare the container for the parsed data
+     ParserData data;
+-    raptor_set_statement_handler( parser, &data, raptorTriplesHandler );
+-#ifdef RAPTOR_HAVE_TRIG
+-    raptor_set_graph_handler( parser, &data, raptorGraphHandler );
+-#endif
++    raptor_parser_set_statement_handler( parser, &data, raptorTriplesHandler );
++    //raptor_parser_set_namespace_handler( parser,0,raptorLogNamespaceHandler );
++    //raptor_parser_set_graph_mark_handler( parser, &data, raptorGraphMarkHandler );
++    //raptor_parser_set_graph_mark_handler( parser, &data, raptorLogGraphHandler );
+ 
+     // start the atual parsing
++    //qDebug() << "Start parsing";
+     raptor_uri* raptorBaseUri = 0;
+     if ( baseUri.isValid() ) {
+-        raptorBaseUri = raptor_new_uri( (unsigned char *) baseUri.toString().toUtf8().data() );
++        raptorBaseUri = raptor_new_uri( d->world,(unsigned char *) baseUri.toString().toUtf8().data() );
+     }
+     else {
+-        raptorBaseUri = raptor_new_uri( (unsigned char *) "http://soprano.sourceforge.net/dummyBaseUri" );
++        raptorBaseUri = raptor_new_uri(d->world, (unsigned char *) "http://soprano.sourceforge.net/dummyBaseUri" );
+     }
+ 
+     clearError();
+-    if ( raptor_start_parse( parser, raptorBaseUri ) ) {
++    if ( raptor_parser_parse_start( parser, raptorBaseUri ) ) {
+         if ( !lastError() ) {
+             ErrorCache::setError( QLatin1String( "Failed to start parsing." ) );
+         }
+@@ -331,7 +349,10 @@ Soprano::Raptor::Parser::parseStream( QT
+         while ( !dev->atEnd() ) {
+             qint64 r = dev->read( buf.data(), buf.size() );
+             if ( r <= 0 ||
+-                 raptor_parse_chunk( parser, ( const unsigned char* )buf.data(), r, 0 ) ) {
++                 raptor_parser_parse_chunk( parser, ( const unsigned char* )buf.data(), r, 0 ) ) {
++                // parse_chunck return failure code.
++                // Call it with END=true and then free
++                raptor_parser_parse_chunk(parser,0,0,/*END=*/1);
+                 raptor_free_parser( parser );
+                 if ( raptorBaseUri ) {
+                     raptor_free_uri( raptorBaseUri );
+@@ -344,7 +365,10 @@ Soprano::Raptor::Parser::parseStream( QT
+         while ( !stream.atEnd() ) {
+             QString buf = stream.read( bufSize );
+             QByteArray utf8Data = buf.toUtf8();
+-            if ( raptor_parse_chunk( parser, ( const unsigned char* )utf8Data.data(), utf8Data.length(), 0 ) ) {
++            if ( raptor_parser_parse_chunk( parser, ( const unsigned char* )utf8Data.data(), utf8Data.length(), 0 ) ) {
++                // parse_chunck return failure code.
++                // Call it with END=true and then free
++                raptor_parser_parse_chunk(parser,0,0,/*END=*/1);
+                 raptor_free_parser( parser );
+                 if ( raptorBaseUri ) {
+                     raptor_free_uri( raptorBaseUri );
+@@ -353,7 +377,8 @@ Soprano::Raptor::Parser::parseStream( QT
+             }
+         }
+     }
+-    raptor_parse_chunk( parser, 0, 0, 1 );
++    // Call parse_chunk with END=true
++    raptor_parser_parse_chunk( parser, 0, 0, 1 );
+ 
+     raptor_free_parser( parser );
+     if ( raptorBaseUri ) {
+
+--- a/parsers/raptor/raptorparser.h
++++ b/parsers/raptor/raptorparser.h
+@@ -29,13 +29,11 @@
+ 
+ #include "parser.h"
+ 
+-#include <raptor.h>
+-
++#include<raptor2/raptor.h>
+ 
+ namespace Soprano {
+     namespace Raptor {
+-    class Parser : public QObject, public Soprano::Parser
+-    {
++      class Parser : public QObject, public Soprano::Parser { 
+         Q_OBJECT
+         Q_INTERFACES(Soprano::Parser)
+ 
+@@ -43,7 +41,7 @@ namespace Soprano {
+         Parser();
+         ~Parser();
+ 
+-        RdfSerializations supportedSerializations() const;
++	RdfSerializations supportedSerializations() const;
+ 
+         StatementIterator parseFile( const QString& filename, 
+                      const QUrl& baseUri, 
+@@ -64,7 +62,10 @@ namespace Soprano {
+         raptor_parser* createParser( RdfSerialization serialization,
+                      const QString& userSerialization = QString() ) const;
+ 
+-        mutable QMutex m_mutex;
++	class Private;
++	Private * d;
++
++
+     };
+     }
+ }
+
+--- a/serializers/raptor/raptorserializer.cpp
++++ b/serializers/raptor/raptorserializer.cpp
+@@ -38,54 +38,135 @@ namespace {
+     class RaptorInitHelper
+     {
+     public:
++        raptor_world* world;
++
+         RaptorInitHelper() {
+-            raptor_init();
++            world = raptor_new_world();
++            raptor_world_open(world);
+         }
+         ~RaptorInitHelper() {
+-            raptor_finish();
++            raptor_free_world(world);
+         }
+     };
+ 
+-    bool convertNode( const Soprano::Node& node, const void** data, raptor_identifier_type* type, raptor_uri** dataType = 0, const unsigned char** lang = 0 )
++    /* Probably unnecessary for serializer*/
++    /*
++    QString mimeTypeString( Soprano::RdfSerialization s, const QString& userSerialization )
++    {
++        if ( s == Soprano::SerializationTurtle ) {
++            return "application/turtle"; // x-turtle does not work....
++        }
++        else {
++            return serializationMimeType( s, userSerialization );
++        }
++    }*/
++
++    raptor_term *  convertNode( raptor_world * world, const Soprano::Node& node)
+     {
++        raptor_term * answer = 0;
++        /* According to documentation, raptor_new_term family takes copy of
++         * all given input parameters
++         */
+         if ( node.isResource() ) {
+-            *data = raptor_new_uri( ( const unsigned char* )node.uri().toEncoded().data() );
+-            *type = RAPTOR_IDENTIFIER_TYPE_RESOURCE;
+-            return true;
++            raptor_uri * uri  = raptor_new_uri(world, ( const unsigned char* )node.uri().toEncoded().data() );
++            answer = raptor_new_term_from_uri(world,uri);
++
++            raptor_free_uri(uri);
+         }
+         else if ( node.isBlank() ) {
+-            *data = qstrdup( node.identifier().toUtf8().data() );
+-            *type = RAPTOR_IDENTIFIER_TYPE_ANONYMOUS;
+-            return true;
++            answer = raptor_new_term_from_blank(
++                    world, (const unsigned char*)node.identifier().toUtf8().data() );
+         }
+         else if ( node.isLiteral() ) {
+-            *data = qstrdup( node.toString().toUtf8().data() );
++            // Because QByteArray.data() is valid as long as QByteArray itself is
++            // alive, we store langBA ( and others _x_BA untill function exits
++
++            //const unsigned char * literal = 0;
++            QByteArray langBA;
++            const unsigned char * lang = 0;
++            raptor_uri * datatype = 0;
++
+             if ( node.literal().isPlain() ) {
+                 if ( !node.language().isEmpty() )
+-                    *lang = ( unsigned char* )qstrdup( ( const char* )node.language().toUtf8().data() );
++                    langBA = node.language().toUtf8();
++                    lang = ( const unsigned char* )( langBA.constData() );
+             }
+             else {
+-                *dataType = raptor_new_uri( ( const unsigned char* )node.dataType().toEncoded().data() );
++                datatype = raptor_new_uri( world, ( const unsigned char* )node.dataType().toEncoded().data() );
+             }
+-            *type = RAPTOR_IDENTIFIER_TYPE_LITERAL;
+-            return true;
++
++            // Now we costructs statement
++            answer = raptor_new_term_from_literal(world,(const unsigned char*)node.literal().toByteArray().constData(),datatype,lang);
++
++            // And free unnecessary resources
++            if ( datatype)
++                raptor_free_uri(datatype);
++
+         }
+ 
+-        return false;
++        return answer;
+     }
+ 
+ 
+-    raptor_statement* convertStatement( const Soprano::Statement& statement )
++    raptor_statement* convertStatement(raptor_world * world, const Soprano::Statement& statement )
+     {
+-        raptor_statement* s = new raptor_statement;
+-        memset( s, 0, sizeof( raptor_statement ) );
+-        convertNode( statement.subject(), &s->subject, &s->subject_type );
+-        convertNode( statement.predicate(), &s->predicate, &s->predicate_type );
+-        convertNode( statement.object(), &s->object, &s->object_type, &s->object_literal_datatype, &s->object_literal_language );
++        // Get terms
++        raptor_term * subject_term = 0, *object_term = 0, * predicate_term = 0;
++        raptor_term * graph_term = 0;
++
++        subject_term = convertNode(world,statement.subject());
++        if ( !subject_term) {
++            qDebug() << "Failed to convert subject to raptor_term";
++            return 0;
++        }
++
++        predicate_term = convertNode(world,statement.predicate());
++        if (!predicate_term) {
++            qDebug() << "Failed to convert predicate to raptor_term";
++            raptor_free_term(subject_term);
++            return 0;
++        }
++
++        object_term = convertNode(world,statement.object());
++        if (!object_term) {
++            qDebug() << "Failed to convert object to raptor_term";
++            raptor_free_term(subject_term);
++            raptor_free_term(predicate_term);
++            return 0;
++        }
++
++        if ( !statement.context().isEmpty() ) {
++            graph_term = convertNode(world,statement.context());
++            if(!graph_term) {
++                qDebug() << "Failed to convert graph/context to raptor_term. Node is" << statement.context();
++                raptor_free_term(subject_term);
++                raptor_free_term(predicate_term);
++                raptor_free_term(object_term);
++                return 0;
++            }
++        }
++
++
++        raptor_statement* s = raptor_new_statement_from_nodes(
++                world,
++                subject_term,
++                predicate_term,
++                object_term,
++                graph_term);
++
++        if (!s) {
++            qDebug() << "Failed to build raptor_statement from terms";
++            raptor_free_term(subject_term);
++            raptor_free_term(predicate_term);
++            raptor_free_term(object_term);
++            raptor_free_term(graph_term);
++        }
++
+         return s;
+     }
+ 
+ 
++    /*
+     void free_node( const void* data, raptor_identifier_type type )
+     {
+         switch( type ) {
+@@ -109,6 +190,7 @@ namespace {
+             free( ( char* )s->object_literal_language );
+         delete s;
+     }
++    */
+ 
+ 
+     int raptorIOStreamWriteByte( void* data, const int byte )
+@@ -121,6 +203,7 @@ namespace {
+         else {
+             ( *s ) << ( char )byte;
+         }
++        //qDebug() << "Write char:" << (char)(byte);
+         return 0;
+     }
+ 
+@@ -140,6 +223,7 @@ namespace {
+                     raptorIOStreamWriteByte( data, p[i] );
+                 }
+             }
++            //qDebug() << "Write string: " << p;
+             break;
+         }
+         default:
+@@ -153,15 +237,36 @@ namespace {
+ Q_EXPORT_PLUGIN2(soprano_raptorserializer, Soprano::Raptor::Serializer)
+ 
+ 
++
++/* We can not rely on RaptorInitHelper anymore because
++ * we need raptor_world in supportedUserSerializations.
++ * Instead of constantly creating new raptor_world just to
++ * detect user supported serializations, it is easier to
++ * embed raptor_world into class.
++ * And we can not declare raptor_world as a member of
++ * Serializer directly, because raptor_world is a typedef,
++ * not a class. So it can not be forward declarated
++ */
++class Soprano::Raptor::Serializer::Private
++{
++    public:
++        raptor_world * world;
++};
++
+ Soprano::Raptor::Serializer::Serializer()
+     : QObject(),
+       Soprano::Serializer( "raptor" )
+ {
++    this->d = new Private();
++    this->d->world = raptor_new_world();
++    raptor_world_open(d->world);
+ }
+ 
+ 
+ Soprano::Raptor::Serializer::~Serializer()
+ {
++    raptor_free_world(d->world);
++    delete d;
+ }
+ 
+ 
+@@ -174,17 +279,19 @@ Soprano::RdfSerializations Soprano::Rapt
+ QStringList Soprano::Raptor::Serializer::supportedUserSerializations() const
+ {
+     QStringList sl;
+-    int i = 0;
+-    const char* name = 0;
+-    const char* label = 0;
+-    const char* mimeType = 0;
+-    const unsigned char* uri = 0;
+-    while ( !raptor_serializers_enumerate( i,
+-                                           &name,
+-                                           &label,
+-                                           &mimeType,
+-                                           &uri ) ) {
+-        sl << QString::fromUtf8( name );
++    const raptor_syntax_description * serializer_descr = 0;
++    for ( int i = 0; 1; ++i ) {
++        serializer_descr =
++            raptor_world_get_serializer_description(d->world,i);
++
++        /* raptor_world_get_serializer_description will return
++         * NULL when conter runs out of bonds and there is no
++         * more serializers
++         */
++        if (!serializer_descr)
++            break;
++
++        sl << QString::fromUtf8( serializer_descr->names[0] );
+         ++i;
+     }
+     return sl;
+@@ -198,28 +305,43 @@ bool Soprano::Raptor::Serializer::serial
+ {
+     clearError();
+ 
+-    RaptorInitHelper raptorHelper;
++    raptor_world * world = this->d->world;
+ 
+     raptor_serializer* serializer = 0;
++    QString mimeType = serializationMimeType(serialization,userSerialization);
++
+     if ( serialization == SerializationRdfXml ) {
+-        serializer = raptor_new_serializer( "rdfxml-abbrev" ); // we always want the abbreviated xmlrdf
++        serializer = raptor_new_serializer( world, "rdfxml-abbrev" ); // we always want the abbreviated xmlrdf
+     }
+     else {
++        const raptor_syntax_description * serializer_descr = 0;
+         for ( int i = 0; 1; ++i ) {
+-            const char* syntax_name = 0;
+-            const char* syntax_label = 0;
+-            const char* mime_type = 0;
+-            const unsigned char* uri_string = 0;
+-            if ( raptor_serializers_enumerate( i,
+-                                               &syntax_name,
+-                                               &syntax_label,
+-                                               &mime_type,
+-                                               &uri_string ) )
+-                break;
+-            if ( !qstrcmp( serializationMimeType( serialization, userSerialization ).toLatin1().data(), mime_type ) ) {
+-                serializer = raptor_new_serializer( syntax_name );
++            serializer_descr =
++                raptor_world_get_serializer_description(world,i);
++
++            /* raptor_world_get_serializer_description will return
++             * NULL when conter runs out of bonds and there is no
++             * more serializers
++             */
++            if (!serializer_descr)
+                 break;
++
++            /* In serializer_descr->mime_types we have a array of pairs
++             * (mime_type,Q) of mime_type for this syntax. It looks like
++             * we can ignore Q value in this case
++             * Acording to documentation, this array can have zero elements
++             */
++            for( int mt_number = 0; mt_number < serializer_descr->mime_types_count;
++                    mt_number++)
++            {
++                const char * mime_type_N = serializer_descr->mime_types[mt_number].mime_type;
++                if ( !qstrcmp( serializationMimeType( serialization, userSerialization ).toLatin1().data(), mime_type_N ) ) {
++                    serializer = raptor_new_serializer( world, serializer_descr->names[0] );
++                    break;
++                }
+             }
++            if ( serializer )
++                break;
+         }
+     }
+ 
+@@ -232,8 +354,8 @@ bool Soprano::Raptor::Serializer::serial
+     QHash<QString, QUrl> namespaces = prefixes();
+     for ( QHash<QString, QUrl>::const_iterator pfit = namespaces.constBegin();
+           pfit != namespaces.constEnd(); ++pfit ) {
+-        raptor_uri* ns = raptor_new_uri( reinterpret_cast<unsigned char*>( pfit.value().toEncoded().data() ) );
+-        raptor_serialize_set_namespace( serializer,
++        raptor_uri* ns = raptor_new_uri( world,reinterpret_cast<unsigned char*>( pfit.value().toEncoded().data() ) );
++        raptor_serializer_set_namespace( serializer,
+                                         ns,
+                                         ( unsigned char* )pfit.key().toLatin1().data() );
+         raptor_free_uri( ns );
+@@ -241,42 +363,50 @@ bool Soprano::Raptor::Serializer::serial
+ 
+     bool success = true;
+ 
+-#ifdef HAVE_IOSTREAM_HANDLER2
+-    raptor_iostream_handler2 raptorStreamHandler = {
+-        2,
+-        0,
+-        0,
+-        raptorIOStreamWriteByte,
+-        raptorIOStreamWriteBytes,
+-        0,
+-        0,
+-        0
+-    };
+-    raptor_iostream* raptorStream = raptor_new_iostream_from_handler2( &stream,
+-                                                                       &raptorStreamHandler );
+-#else
+-    raptor_iostream_handler raptorStreamHandler = {
+-        0,
+-        0,
+-        raptorIOStreamWriteByte,
+-        raptorIOStreamWriteBytes,
+-        0
+-    };
+-    raptor_iostream* raptorStream = raptor_new_iostream_from_handler( &stream,
+-                                                                      &raptorStreamHandler );
+-#endif
++    raptor_iostream_handler raptorStreamHandler;
++    // ATTENTION: Raptor documentation is incorrect! Always set
++    // version to 2 and raptor_iostream_calculate_modes internal
++    // call will correctly determine operation mode ( read,write,readwrite)
++    raptorStreamHandler.version = 2;
++    raptorStreamHandler.init = 0;
++    raptorStreamHandler.finish = 0;
++    raptorStreamHandler.write_byte = raptorIOStreamWriteByte;
++    raptorStreamHandler.write_bytes = raptorIOStreamWriteBytes;
++    raptorStreamHandler.write_end = 0;
++    raptorStreamHandler.read_bytes = 0;
++    raptorStreamHandler.read_eof = 0;
++
++    raptor_iostream* raptorStream = raptor_new_iostream_from_handler(
++            world,
++            &stream,
++            &raptorStreamHandler
++            );
++
++    if (!raptorStream) {
++        qDebug() << "Can not create raptor iostream";
++        raptor_free_serializer(serializer);
++        return false;
++    }
+ 
+     // raptor_serialize_start takes ownership of raptorStream
+-    raptor_serialize_start( serializer, 0, raptorStream );
++    raptor_serializer_start_to_iostream( serializer,0, raptorStream );
+ 
+     while ( it.next() ) {
+-        raptor_statement* rs = convertStatement( *it );
+-        raptor_serialize_statement( serializer, rs );
+-        free_statement( rs );
++        raptor_statement * rs = convertStatement(world, *it );
++        if (rs) {
++            raptor_serializer_serialize_statement(serializer, rs );
++            raptor_free_statement( rs );
++        }
++        else {
++            qDebug() << "Fail to convert Soprano::Statement " <<
++                *it << 
++                " to raptor_statement";
++        }
+     }
+ 
+-    raptor_serialize_end( serializer );
++    raptor_serializer_serialize_end( serializer );
+     raptor_free_serializer( serializer );
++    raptor_free_iostream(raptorStream);
+ 
+     return success;
+ }
+
+--- a/serializers/raptor/raptorserializer.h
++++ b/serializers/raptor/raptorserializer.h
+@@ -28,7 +28,6 @@
+ 
+ #include "serializer.h"
+ 
+-
+ namespace Soprano {
+     namespace Raptor {
+         class Serializer : public QObject, public Soprano::Serializer
+@@ -47,6 +46,12 @@ namespace Soprano {
+                             QTextStream& stream, 
+                             RdfSerialization serialization,
+                             const QString& userSerialization = QString() ) const;
++	private:
++	    /* See source file comments, that explain why it is necessary to 
++	     * use Private class and RaptorInitHelper is not succifient anymore
++	     */
++	   class Private;
++	   Private * d;
+         };
+     }
+ }
+
+--- a/test/CMakeLists.txt
++++ b/test/CMakeLists.txt
+@@ -135,6 +135,12 @@ add_executable(parsertest parsertest.cpp
+ target_link_libraries(parsertest soprano ${QT_QTCORE_LIBRARY} ${QT_QTTEST_LIBRARY})
+ add_test(parsertest ${EXECUTABLE_OUTPUT_PATH}/parsertest)
+ 
++# serializer test
++qt4_automoc(serializetest serializetest.cpp)
++add_executable(serializertest serializetest.cpp)
++target_link_libraries(serializertest soprano ${QT_QTCORE_LIBRARY} ${QT_QTTEST_LIBRARY})
++add_test(serializertest ${EXECUTABLE_OUTPUT_PATH}/serializertest)
++
+ # Error test
+ qt4_automoc(errortest errortest.cpp)
+ add_executable(errortest errortest.cpp)
+
+From: Michael Jansen <kde@michael-jansen.biz>
+Date: Tue, 19 Jul 2011 16:49:58 +0000
+Subject: Improve FindRaptor.cmake
+X-Git-Url: http://quickgit.kde.org/?p=soprano.git&amp;a=commitdiff&amp;h=267ca255245ac728aa58946c71405fddafe31df9
+---
+Improve FindRaptor.cmake
+- Is able to look for both raptor1 and raptor2 (raptor2 is default)
+- Handles find_package(Raptor VERSION)
+- If raptor2 is searched and not found but raptor1 is there prints out nice message
+
+Some other small improvements to be more cmake standard compliant.
+
+NOTICE: Untested on windows. Please test if you can.
+
+Could be a candidate for ECM.
+
+CCMAIL: kde-buildsystem@kde.org
+CCMAIL: trueg@kde.org
+CCMAIL: v.for.vandal@gmail.com
+---
+
+
+--- a/cmake/modules/FindRaptor.cmake
++++ b/cmake/modules/FindRaptor.cmake
+@@ -5,62 +5,97 @@
+ #  RAPTOR_LIBRARIES   - Link these to use Raptor
+ #  RAPTOR_INCLUDE_DIR - Include directory for using Raptor
+ #  RAPTOR_DEFINITIONS - Compiler switches required for using Raptor
++#
++#  Capabilities
++#       RAPTOR_HAVE_TRIG   - Set if raptor has TRIG
+ 
+ # (c) 2007-2011 Sebastian Trueg <trueg@kde.org>
+ # (c) 2011 Artem Serebriyskiy <v.for.vandal@gmail.com>
++# (c) 2011 Michael Jansen <kde@michael-jansen.biz>
+ #
+ # Based on FindFontconfig Copyright (c) 2006,2007 Laurent Montel, <montel@kde.org>
+ #
+ # Redistribution and use is allowed according to the terms of the BSD license.
+ # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
+ 
+-include(FindLibraryWithDebug)
+-include(MacroEnsureVersion)
+ 
+-if (RAPTOR_INCLUDE_DIR AND RAPTOR_LIBRARIES)
++MACRO ( FIND_RAPTOR libname libhints includehints )
++    find_library_with_debug(
++        RAPTOR_LIBRARIES
++        WIN32_DEBUG_POSTFIX d
++        NAMES ${libname}
++        HINTS ${libhints})
++    find_path(
++        RAPTOR_INCLUDE_DIR raptor.h
++        HINTS ${includehints}
++        PATH_SUFFIXES ${libname})
++ENDMACRO ()
+ 
+-  # in cache already
+-  set(RAPTOR_FOUND TRUE)
+ 
+-else (RAPTOR_INCLUDE_DIR AND RAPTOR_LIBRARIES)
+ 
++# Check if we have cached results in case the last round was successful.
++if ( NOT( RAPTOR_INCLUDE_DIR AND RAPTOR_LIBRARIES ) OR NOT RAPTOR_FOUND )
+ 
+-  if (NOT WIN32)
++    include(FindLibraryWithDebug)
++    include(MacroEnsureVersion)
+     find_package(PkgConfig)
+-    pkg_check_modules(PC_RAPTOR QUIET raptor2)
+-    set(RAPTOR_DEFINITIONS ${PC_RAPTOR_CFLAGS_OTHER})
+-    set(RAPTOR_VERSION ${PC_RAPTOR_VERSION})
+-  endif (NOT WIN32)
+-
+-
+-  find_library_with_debug(RAPTOR_LIBRARIES
+-                  WIN32_DEBUG_POSTFIX d
+-                  NAMES raptor2 
+-                  HINTS ${PC_RAPTOR_LIBDIR} ${PC_RAPTOR_LIBRARY_DIRS}
+-                  )
+-
+-  find_path(RAPTOR_INCLUDE_DIR raptor.h
+-            HINTS ${PC_RAPTOR_INCLUDEDIR} ${PC_RAPTOR_INCLUDE_DIRS}
+-            PATH_SUFFIXES raptor2 )
+-  
+-  if (RAPTOR_VERSION)
+-    MACRO_ENSURE_VERSION("1.4.16" ${RAPTOR_VERSION} RAPTOR_HAVE_TRIG)
+-  endif (RAPTOR_VERSION)
+-
+-  if (RAPTOR_FOUND)
+-    if (NOT Raptor_FIND_QUIETLY)
+-      message(STATUS "Found Raptor ${RAPTOR_VERSION}: libs - ${RAPTOR_LIBRARIES}; includes - ${RAPTOR_INCLUDE_DIR}")
+-    endif (NOT Raptor_FIND_QUIETLY)
+-  else (RAPTOR_FOUND)
+-    if (Raptor_FIND_REQUIRED)
+-      message(FATAL_ERROR "Could NOT find Raptor")
+-    endif (Raptor_FIND_REQUIRED)
+-  endif (RAPTOR_FOUND)
+-
+-  include(FindPackageHandleStandardArgs)
+-  find_package_handle_standard_args(RAPTOR  DEFAULT_MSG  RAPTOR_LIBRARIES RAPTOR_INCLUDE_DIR)
+-
+-  mark_as_advanced(RAPTOR_INCLUDE_DIR RAPTOR_LIBRARIES)
+ 
+-endif (RAPTOR_INCLUDE_DIR AND RAPTOR_LIBRARIES)
++    # Vy default look for version 2.0
++    if (NOT Raptor_FIND_VERSION )
++        set( Raptor_FIND_VERSION "2.0")
++        set( Raptor_FIND_VERSION_MAJOR "2" )
++        set( Raptor_FIND_VERSION_MINOR "0" )
++    endif ()
++
++    if ( Raptor_FIND_VERSION_MAJOR EQUAL "2" )
++
++        if ( NOT WIN32 )
++            pkg_check_modules(PC_RAPTOR2 QUIET raptor2)
++            if ( PC_RAPTOR2_FOUND )
++                set(RAPTOR_DEFINITIONS ${PC_RAPTOR2_CFLAGS_OTHER})
++                set(RAPTOR_VERSION ${PC_RAPTOR2_VERSION} CACHE STRING "Raptor Version found" )
++            endif ()
++        endif ()
++        find_raptor( raptor2 "${PC_RAPTOR2_LIBDIR};${PC_RAPTOR2_LIBRARY_DIRS}" "${PC_RAPTOR2_INCLUDEDIR};${PC_RAPTOR2_INCLUDE_DIRS}")
++
++    elseif ( Raptor_FIND_VERSION_MAJOR EQUAL "1" )
++
++        if ( NOT WIN32 )
++            pkg_check_modules(PC_RAPTOR QUIET raptor)
++            if ( PC_RAPTOR_FOUND )
++                set(RAPTOR_DEFINITIONS ${PC_RAPTOR_CFLAGS_OTHER})
++                set(RAPTOR_VERSION ${PC_RAPTOR_VERSION} CACHE STRING "Raptor Version found" )
++            endif ()
++        endif ()
++        find_raptor( raptor "${PC_RAPTOR_LIBDIR};${PC_RAPTOR_LIBRARY_DIRS}" "${PC_RAPTOR_INCLUDEDIR};${PC_RAPTOR_INCLUDE_DIRS}")
++
++    else ()
++
++        message( FATAL_ERROR "No idea how to check for version : ${Raptor_FIND_VERSION}")
++
++    endif()
++
++    if (RAPTOR_VERSION)
++        MACRO_ENSURE_VERSION("1.4.16" ${RAPTOR_VERSION} RAPTOR_HAVE_TRIG)
++    endif (RAPTOR_VERSION)
++
++    mark_as_advanced(RAPTOR_INCLUDE_DIR RAPTOR_LIBRARIES)
++
++endif () # Check for cached values
++
++include(FindPackageHandleStandardArgs)
++
++find_package_handle_standard_args(
++    Raptor
++    VERSION_VAR   RAPTOR_VERSION
++    REQUIRED_VARS RAPTOR_LIBRARIES RAPTOR_INCLUDE_DIR)
++
++mark_as_advanced(RAPTOR_VERSION)
++
++if (NOT RAPTOR_FOUND AND Raptor_FIND_VERSION_MAJOR EQUAL "2" AND NOT Raptor_FIND_QUIET )
++    pkg_check_modules(PC_RAPTOR QUIET raptor)
++    if (PC_RAPTOR_FOUND)
++        message( STATUS "You have raptor1 version ${PC_RAPTOR_VERSION} installed. Please update." )
++    endif ()
++endif ()
+ 
+
