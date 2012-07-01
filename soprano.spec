@@ -14,12 +14,12 @@
 Summary:	Soprano - Qt wrapper API to librdf
 Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
-Version:	2.7.57
+Version:	2.8.0
 Release:	1
 License:	GPL v2
 Group:		X11/Applications
 Source0:	http://downloads.sourceforge.net/soprano/%{name}-%{version}.tar.bz2
-# Source0-md5:	c40f6b6b6e36ed725101b8cf47e42ff0
+# Source0-md5:	273c3403aeb6d8a43e78a4887f50a385
 #Source0:	%{name}-%{version}-%{snap}.tar.gz
 URL:		http://sourceforge.net/projects/soprano
 BuildRequires:	QtCore-devel >= %{qtbrver}
