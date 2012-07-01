@@ -29,7 +29,7 @@ BuildRequires:	QtNetwork-devel >= %{qtbrver}
 BuildRequires:	clucene-core-devel >= 0.9.16a-2
 BuildRequires:	cmake >= 2.8.0
 %{?with_sesame2:BuildRequires: libgcj-devel}
-%{?with_serializer:BuildRequires:	libraptor-devel}
+%{?with_serializer:BuildRequires:	libraptor-devel >= 2.0.0}
 BuildRequires:	pkgconfig
 BuildRequires:	qt4-build >= %{qtbrver}
 BuildRequires:	qt4-qmake >= %{qtbrver}
