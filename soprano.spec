@@ -1,7 +1,3 @@
-# TODO
-# - missing deps:
-#   * Sesame2 storage backend (java-based)
-#
 # Conditional build:
 %bcond_without	serializer		# with raptor serializer. need to figure out proper BR
 %bcond_without	sesame2			# with sesame2backend
@@ -27,6 +23,7 @@ BuildRequires:	QtGui-devel >= %{qtbrver}
 BuildRequires:	QtNetwork-devel >= %{qtbrver}
 BuildRequires:	clucene-core-devel >= 0.9.16a-2
 BuildRequires:	cmake >= 2.8.0
+BuildRequires:	doxygen
 %{?with_sesame2:BuildRequires: libgcj-devel}
 %{?with_serializer:BuildRequires:	libraptor2-devel >= 2.0.0}
 BuildRequires:	pkgconfig
