@@ -1,6 +1,6 @@
 # Conditional build:
 %bcond_without	serializer		# with raptor serializer. need to figure out proper BR
-%bcond_without	sesame2			# with sesame2backend
+%bcond_with	sesame2			# with sesame2backend
 %bcond_without	virtuoso		# with virtuosobackend
 
 %define		qtbrver		4.7.3
@@ -15,7 +15,7 @@ Summary:	Soprano - Qt wrapper API to librdf
 Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
 Version:	2.9.4
-Release:	5
+Release:	6
 License:	GPL v2
 Group:		X11/Applications
 Source0:	http://downloads.sourceforge.net/soprano/%{name}-%{version}.tar.bz2
