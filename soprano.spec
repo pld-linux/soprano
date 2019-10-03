@@ -6,11 +6,15 @@
 %define		qtbrver		4.7.3
 %define		snap		svn1042011
 
+%ifnarch %{x8664}
+%undefine	with_virtuoso
+%endif
+
 Summary:	Soprano - Qt wrapper API to librdf
 Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
 Version:	2.9.4
-Release:	7
+Release:	8
 License:	GPL v2
 Group:		X11/Applications
 Source0:	http://downloads.sourceforge.net/soprano/%{name}-%{version}.tar.bz2
@@ -34,8 +38,8 @@ BuildRequires:	redland-devel >= 1.0.14
 BuildRequires:	rpmbuild(macros) >= 1.600
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXext-devel
-%if %{with virtuoso}
 BuildRequires:	libiodbc-devel
+%if %{with virtuoso}
 Requires:	virtuoso >= 6.1.0
 %endif
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -120,7 +124,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorparser.so
 %{?with_sesame2:%attr(755,root,root) %{_libdir}/soprano/libsoprano_sesame2backend.so}
 %{?with_serializer:%attr(755,root,root) %{_libdir}/soprano/libsoprano_raptorserializer.so}
-%{?with_virtuoso:%attr(755,root,root) %{_libdir}/soprano/libsoprano_virtuosobackend.so}
+%attr(755,root,root) %{_libdir}/soprano/libsoprano_virtuosobackend.so
 %{_datadir}/soprano
 %{_datadir}/dbus-1/interfaces/org.soprano.Model.xml
 %{_datadir}/dbus-1/interfaces/org.soprano.NodeIterator.xml
