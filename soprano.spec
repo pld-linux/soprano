@@ -1,10 +1,13 @@
+# NOTE: due to use of QPluginLoader, it requires that plugins are built
+# using Qt "Build key" matching system qt4; this key includes gcc version,
+# so soprano must be rebuilt after each rebuilt of qt4 with new gcc version.
+#
 # Conditional build:
-%bcond_without	serializer		# with raptor serializer. need to figure out proper BR
-%bcond_with	sesame2			# with sesame2backend
-%bcond_without	virtuoso		# with virtuosobackend
+%bcond_without	serializer	# raptor serializer
+%bcond_with	sesame2		# sesame2 backend
+%bcond_without	virtuoso	# virtuoso backend
 
 %define		qtbrver		4.7.3
-%define		snap		svn1042011
 
 %ifnarch %{x8664}
 %undefine	with_virtuoso
@@ -14,13 +17,12 @@ Summary:	Soprano - Qt wrapper API to librdf
 Summary(pl.UTF-8):	Soprano - wrapper Qt do librdf
 Name:		soprano
 Version:	2.9.4
-Release:	9
+Release:	10
 License:	GPL v2
 Group:		X11/Applications
-Source0:	http://downloads.sourceforge.net/soprano/%{name}-%{version}.tar.bz2
+Source0:	https://downloads.sourceforge.net/soprano/%{name}-%{version}.tar.bz2
 # Source0-md5:	91413e5783efeee0beb747ea4c5c9ef0
-#Source0:	%{name}-%{version}-%{snap}.tar.gz
-URL:		http://sourceforge.net/projects/soprano
+URL:		https://sourceforge.net/projects/soprano
 BuildRequires:	QtCore-devel >= %{qtbrver}
 BuildRequires:	QtDBus-devel >= %{qtbrver}
 BuildRequires:	QtGui-devel >= %{qtbrver}
@@ -78,8 +80,6 @@ Pliki nagłówkowe dla soprano.
 %build
 install -d build
 cd build
-# add this to get verbose output
-# -DCMAKE_VERBOSE_MAKEFILE=1
 %cmake \
 	-DJAVA_INCLUDE_PATH=%{_libdir}/gcc/%{_target_platform}/%{cc_version}/include \
 	-DJAVA_INCLUDE_PATH2=%{_libdir}/gcc/%{_target_platform}/%{cc_version}/include \
